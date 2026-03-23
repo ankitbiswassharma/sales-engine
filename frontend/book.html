@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Demo | Musk-IT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#04070f;--bg2:#080d1a;--surface:#101828;--surface2:#162033;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--accent:#3B8BF7;--teal:#1FD9A4;--amber:#F5A623;--text:#F0F4FF;--text2:#8B97B4;--text3:#505D78;--font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif}
+    html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.6;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(16px);background:rgba(4,7,15,0.9);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center}
+    .nav-inner{max-width:1000px;width:100%;margin:auto;display:flex;align-items:center;justify-content:space-between}
+    .logo{font-family:var(--font-head);font-size:20px;font-weight:800;letter-spacing:-.5px}.logo span:last-child{color:var(--accent)}
+    .nav-links{display:flex;align-items:center;gap:12px}.nav-links a{font-size:13px;color:var(--text2);transition:color .2s}.nav-links a:hover{color:var(--text)}
+    .btn-nav{background:var(--accent);color:#fff;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:500}
+    .page{padding:100px 2rem 80px;max-width:900px;margin:0 auto}
+    .page-eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px}
+    .page-title{font-family:var(--font-head);font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-1.2px;color:var(--text);margin-bottom:12px;line-height:1.1}
+    .page-sub{font-size:15px;color:var(--text2);margin-bottom:40px;line-height:1.7}
+    .book-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+    /* Calendar */
+    .cal-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:24px}
+    .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .cal-month{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text)}
+    .cal-nav{background:none;border:1px solid var(--border2);border-radius:6px;width:28px;height:28px;cursor:pointer;color:var(--text2);font-size:14px;transition:all .2s;display:flex;align-items:center;justify-content:center}
+    .cal-nav:hover{border-color:var(--accent);color:var(--accent)}
+    .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px;text-align:center}
+    .cal-day-name{font-size:11px;color:var(--text3);padding:4px;font-weight:500}
+    .cal-day{padding:7px 4px;border-radius:6px;cursor:pointer;font-size:13px;text-align:center;transition:all .2s;border:1px solid transparent}
+    .cal-day:hover:not(.empty):not(.past):not(.no-slots){background:rgba(59,139,247,0.1);border-color:rgba(59,139,247,0.2);color:var(--accent)}
+    .cal-day.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .cal-day.today{border-color:rgba(255,255,255,0.15);color:var(--text)}
+    .cal-day.past,.cal-day.empty{color:var(--text3);cursor:default;opacity:.35}
+    .cal-day.no-slots{color:var(--text3);cursor:default;opacity:.4;text-decoration:line-through}
+    /* Slots */
+    .slots-section{margin-top:0}
+    .slots-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:10px}
+    .slots-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .slot-btn{padding:8px 6px;border-radius:8px;border:1px solid var(--border2);background:rgba(255,255,255,0.02);font-family:var(--font-body);font-size:12px;color:var(--text2);cursor:pointer;text-align:center;transition:all .2s}
+    .slot-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(59,139,247,0.06)}
+    .slot-btn.selected{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+    .slots-empty{font-size:13px;color:var(--text3);padding:12px 0}
+    .slots-loading{font-size:12px;color:var(--text3);padding:8px 0;animation:pulse .8s infinite}
+    @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+    /* Duration toggle */
+    .dur-row{display:flex;gap:8px;margin-bottom:18px}
+    .dur-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border2);background:none;font-family:var(--font-body);font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s}
+    .dur-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(59,139,247,0.08)}
+    /* Form */
+    .form-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:24px}
+    .form-title{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+    .field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+    .field label{font-size:12px;color:var(--text2);font-weight:500}
+    .fi,.fs{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;width:100%;transition:border-color .2s,box-shadow .2s}
+    .fi:focus,.fs:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,139,247,0.08)}
+    .fi::placeholder{color:var(--text3)}
+    .fs{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23505D78' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+    .fs option{background:#0c1221}
+    /* Selected slot badge */
+    .slot-badge{display:none;background:rgba(59,139,247,0.1);border:1px solid rgba(59,139,247,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--accent);margin-bottom:16px;font-weight:500}
+    .slot-badge.show{display:block}
+    /* Submit */
+    .btn-primary{width:100%;background:var(--teal);color:#04070f;border:none;border-radius:9px;padding:13px;font-family:var(--font-head);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s,transform .15s;margin-top:6px}
+    .btn-primary:hover:not(:disabled){opacity:.88;transform:translateY(-1px)}
+    .btn-primary:disabled{opacity:.4;cursor:not-allowed}
+    /* Error / Success */
+    .msg{display:none;border-radius:8px;padding:12px 16px;font-size:14px;margin-bottom:16px}
+    .msg.error{display:block;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#FDA4AF}
+    .success-card{display:none;background:rgba(31,217,164,0.06);border:1px solid rgba(31,217,164,0.2);border-radius:14px;padding:32px;text-align:center}
+    .success-card.show{display:block}
+    .success-card h2{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--teal);margin-bottom:8px}
+    .success-card p{font-size:14px;color:var(--text2);margin-bottom:18px;line-height:1.65}
+    .btn-wa{background:#25D366;color:#fff;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity .2s}
+    .btn-wa:hover{opacity:.88}
+    .host-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+    .host-avatar{width:44px;height:44px;border-radius:50%;background:rgba(59,139,247,0.15);border:2px solid rgba(59,139,247,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .host-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--text)}
+    .host-role{font-size:12px;color:var(--text3)}
+    footer{border-top:1px solid var(--border);padding:32px 2rem;text-align:center}
+    .footer-links{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+    .footer-links a{font-size:13px;color:var(--text3)}.footer-links a:hover{color:var(--text2)}
+    .footer-copy{font-size:12px;color:var(--text3)}
+    @media(max-width:720px){.book-grid{grid-template-columns:1fr}.slots-grid{grid-template-columns:repeat(4,1fr)}}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo"><span>Musk</span><span>-IT</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a><a href="/quote.html">Get Quote</a><a href="/pay.html">Pay Now</a>
+      <a href="https://wa.me/917047859422" target="_blank" class="btn-nav">💬 WhatsApp</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-eyebrow">Free Demo</div>
+  <h1 class="page-title">Book a 30-min demo</h1>
+  <p class="page-sub">See Musk-IT in action with a live walkthrough tailored to your project type. Pick a slot and we'll send a confirmation instantly.</p>
+
+  <div class="success-card" id="successCard">
+    <h2>✓ Demo booked!</h2>
+    <p id="successDetail">Your slot is confirmed. Ankit will send a Google Meet link 30 minutes before the session.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a href="https://wa.me/917047859422" target="_blank" class="btn-wa">💬 Message Ankit</a>
+      <a href="/pay.html" style="background:var(--accent);color:#fff;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:600;display:inline-flex;align-items:center">Ready to pay? →</a>
+    </div>
+  </div>
+
+  <div class="book-grid" id="bookGrid">
+    <!-- Left: Calendar -->
+    <div>
+      <div class="cal-card">
+        <!-- Host -->
+        <div class="host-card">
+          <div class="host-avatar">👤</div>
+          <div>
+            <div class="host-name">Ankit Biswas Sharma</div>
+            <div class="host-role">Sales Lead · Musk-IT · IST (UTC+5:30)</div>
+          </div>
+        </div>
+
+        <!-- Duration -->
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:500">Demo duration</div>
+        <div class="dur-row">
+          <button class="dur-btn active" onclick="setDuration(30, this)">30 min</button>
+          <button class="dur-btn" onclick="setDuration(45, this)">45 min</button>
+          <button class="dur-btn" onclick="setDuration(60, this)">60 min</button>
+        </div>
+
+        <!-- Calendar -->
+        <div class="cal-header">
+          <button class="cal-nav" onclick="prevMonth()">‹</button>
+          <div class="cal-month" id="calMonth"></div>
+          <button class="cal-nav" onclick="nextMonth()">›</button>
+        </div>
+        <div class="cal-days" id="calGrid"></div>
+
+        <!-- Slots -->
+        <div class="slots-section" id="slotsSection" style="display:none">
+          <div class="slots-label" id="slotsLabel">Available times</div>
+          <div id="slotsContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Form -->
+    <div>
+      <div class="form-card">
+        <div class="form-title">📋 Your details</div>
+        <div class="msg" id="errMsg"></div>
+        <div class="slot-badge" id="slotBadge"></div>
+
+        <div class="field"><label>Full Name *</label><input class="fi" id="bName" placeholder="Your name"></div>
+        <div class="field"><label>Work Email *</label><input class="fi" id="bEmail" type="email" placeholder="you@company.com"></div>
+        <div class="field"><label>WhatsApp / Phone *</label><input class="fi" id="bPhone" placeholder="+91 XXXXX XXXXX"></div>
+        <div class="field"><label>Organisation</label><input class="fi" id="bOrg" placeholder="Company name"></div>
+        <div class="field">
+          <label>Plan you're considering</label>
+          <select class="fs" id="bPlan">
+            <option value="">Not sure yet</option>
+            <option>Professional</option>
+            <option>Enterprise AI</option>
+            <option>Source License</option>
+          </select>
+        </div>
+        <div class="field"><label>Anything to cover in the demo?</label><input class="fi" id="bMsg" placeholder="e.g. BOQ management, AI analytics..."></div>
+
+        <button class="btn-primary" id="bookBtn" onclick="submitBooking()" disabled>
+          📅 Confirm Booking
+        </button>
+        <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:10px">Confirmation sent instantly to your email + WhatsApp</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="/">Home</a><a href="/quote.html">Get Quote</a><a href="/pay.html">Pay</a>
+    <a href="mailto:ankitbiswassharma@muskit.in">Email</a>
+    <a href="https://wa.me/917047859422">WhatsApp</a>
+  </div>
+  <div class="footer-copy">© 2026 Musk-IT · All Rights Reserved</div>
+</footer>
+
+<script>
+let currentDate = new Date();
+let viewYear = currentDate.getFullYear();
+let viewMonth = currentDate.getMonth();
+let selectedDate = null;
+let selectedSlot = null;
+let selectedDuration = 30;
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function setDuration(d, btn) {
+  selectedDuration = d;
+  document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function renderCalendar() {
+  const first = new Date(viewYear, viewMonth, 1);
+  const last  = new Date(viewYear, viewMonth + 1, 0);
+  document.getElementById('calMonth').textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+
+  let html = DAYS.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+  for (let i = 0; i < first.getDay(); i++) html += `<div class="cal-day empty"></div>`;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const maxDate = new Date(); maxDate.setDate(maxDate.getDate() + 60);
+
+  for (let d = 1; d <= last.getDate(); d++) {
+    const date = new Date(viewYear, viewMonth, d);
+    const isPast = date < today;
+    const isFuture = date > maxDate;
+    const isSun = date.getDay() === 0;
+    const dateStr = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSelected = dateStr === selectedDate;
+    const isToday = date.getTime() === today.getTime();
+
+    let cls = 'cal-day';
+    if (isPast || isFuture || isSun) cls += ' past';
+    else if (isSelected) cls += ' selected';
+    else if (isToday) cls += ' today';
+
+    const clickable = !isPast && !isFuture && !isSun;
+    html += `<div class="${cls}" ${clickable ? `onclick="selectDate('${dateStr}')"` : ''}>${d}</div>`;
+  }
+
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+function prevMonth() {
+  viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  renderCalendar();
+}
+function nextMonth() {
+  viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  renderCalendar();
+}
+
+async function selectDate(dateStr) {
+  selectedDate = dateStr;
+  selectedSlot = null;
+  updateSlotBadge();
+  document.getElementById('bookBtn').disabled = true;
+  renderCalendar();
+
+  const ss = document.getElementById('slotsSection');
+  const sc = document.getElementById('slotsContainer');
+  ss.style.display = 'block';
+  document.getElementById('slotsLabel').textContent = `Times on ${dateStr}`;
+  sc.innerHTML = '<div class="slots-loading">Loading available times...</div>';
+
+  try {
+    const res = await fetch(`/api/slots?date=${dateStr}`);
+    const data = await res.json();
+    if (!data.slots?.length) {
+      sc.innerHTML = `<div class="slots-empty">${data.reason || 'No slots available. Try another date.'}</div>`;
+      return;
+    }
+    sc.innerHTML = `<div class="slots-grid">${
+      data.slots.map(s => `<button class="slot-btn" onclick="selectSlot('${s}', this)">${formatTime(s)}</button>`).join('')
+    }</div>`;
+  } catch (e) {
+    sc.innerHTML = '<div class="slots-empty">Could not load slots. Please try again.</div>';
+  }
+}
+
+function selectSlot(time, btn) {
+  selectedSlot = time;
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateSlotBadge();
+  document.getElementById('bookBtn').disabled = false;
+}
+
+function updateSlotBadge() {
+  const badge = document.getElementById('slotBadge');
+  if (selectedDate && selectedSlot) {
+    badge.textContent = `📅 ${selectedDate} at ${formatTime(selectedSlot)} IST (${selectedDuration} min)`;
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+
+function formatTime(t) {
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h < 12 ? 'AM' : 'PM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+async function submitBooking() {
+  if (!selectedDate || !selectedSlot) { showErr('Please select a date and time.'); return; }
+  const name  = document.getElementById('bName').value.trim();
+  const email = document.getElementById('bEmail').value.trim();
+  const phone = document.getElementById('bPhone').value.trim();
+  if (!name || !email || !phone) { showErr('Name, email and phone are required.'); return; }
+
+  const btn = document.getElementById('bookBtn');
+  btn.disabled = true; btn.textContent = 'Booking...';
+
+  try {
+    const res = await fetch('/api/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name, email, phone,
+        organisation: document.getElementById('bOrg').value.trim(),
+        slot_date: selectedDate, slot_time: selectedSlot,
+        duration_min: selectedDuration,
+        plan_interest: document.getElementById('bPlan').value,
+        message: document.getElementById('bMsg').value.trim(),
+        meeting_type: 'video',
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Booking failed');
+
+    document.getElementById('bookGrid').style.display = 'none';
+    document.getElementById('successDetail').textContent =
+      `Your slot on ${selectedDate} at ${formatTime(selectedSlot)} IST is confirmed. Ankit will send a Google Meet link on WhatsApp 30 minutes before.`;
+    document.getElementById('successCard').classList.add('show');
+  } catch (err) {
+    showErr(err.message);
+    btn.disabled = false; btn.textContent = '📅 Confirm Booking';
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('errMsg');
+  el.textContent = '⚠ ' + msg;
+  el.className = 'msg error';
+  setTimeout(() => el.className = 'msg', 5000);
+}
+
+renderCalendar();
+</script>
+</body>
+</html>

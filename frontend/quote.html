@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get a Quote | Musk-IT</title>
+  <meta name="description" content="Build your custom Musk-IT quote instantly. Choose plan, users and billing cycle.">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#04070f;--bg2:#080d1a;--bg3:#0c1221;--surface:#101828;--surface2:#162033;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--accent:#3B8BF7;--teal:#1FD9A4;--amber:#F5A623;--text:#F0F4FF;--text2:#8B97B4;--text3:#505D78;--font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.6;overflow-x:hidden;min-height:100vh}
+    a{color:inherit;text-decoration:none}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(16px);background:rgba(4,7,15,0.9);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center}
+    .nav-inner{max-width:1000px;width:100%;margin:auto;display:flex;align-items:center;justify-content:space-between}
+    .logo{font-family:var(--font-head);font-size:20px;font-weight:800;letter-spacing:-.5px}
+    .logo span:last-child{color:var(--accent)}
+    .nav-links{display:flex;align-items:center;gap:12px}
+    .nav-links a{font-size:13px;color:var(--text2);transition:color .2s}.nav-links a:hover{color:var(--text)}
+    .btn-nav{background:var(--accent);color:#fff;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:500}
+    /* Page */
+    .page{padding:100px 2rem 80px;max-width:860px;margin:0 auto}
+    .page-eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px}
+    .page-title{font-family:var(--font-head);font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-1.2px;color:var(--text);margin-bottom:12px;line-height:1.1}
+    .page-sub{font-size:15px;color:var(--text2);margin-bottom:40px;line-height:1.7;max-width:540px}
+    /* Step tabs */
+    .steps{display:flex;gap:0;margin-bottom:36px;border-bottom:1px solid var(--border)}
+    .step-tab{padding:12px 20px;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:8px}
+    .step-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+    .step-tab .num{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px}
+    .step-tab.active .num{background:rgba(59,139,247,0.15);border-color:rgba(59,139,247,0.3);color:var(--accent)}
+    .step-tab.done .num{background:rgba(31,217,164,0.15);border-color:rgba(31,217,164,0.3);color:var(--teal)}
+    /* Plan cards */
+    .plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+    .plan-card{background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:22px;cursor:pointer;transition:all .2s;position:relative}
+    .plan-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+    .plan-card.selected{border-color:var(--accent);background:rgba(59,139,247,0.05)}
+    .plan-card.enterprise.selected{border-color:var(--teal);background:rgba(31,217,164,0.04)}
+    .plan-tag{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
+    .plan-name{font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px}
+    .plan-price{font-family:var(--font-head);font-size:26px;font-weight:800;letter-spacing:-1px;margin-bottom:4px}
+    .plan-price sub{font-size:13px;font-weight:400;vertical-align:baseline}
+    .plan-desc{font-size:12px;color:var(--text3);line-height:1.55}
+    .check-indicator{position:absolute;top:14px;right:14px;width:20px;height:20px;border-radius:50%;background:var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s}
+    .plan-card.selected .check-indicator{background:var(--accent);color:#fff}
+    /* Billing toggle */
+    .billing-row{display:flex;align-items:center;gap:14px;margin-bottom:28px;font-size:13px;color:var(--text2)}
+    .toggle-wrap{position:relative;width:44px;height:24px;background:rgba(255,255,255,0.08);border-radius:12px;cursor:pointer;border:1px solid var(--border2);transition:background .2s}
+    .toggle-wrap.on{background:var(--accent)}
+    .toggle-knob{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s}
+    .toggle-wrap.on .toggle-knob{transform:translateX(20px)}
+    .save-pill{background:rgba(31,217,164,0.12);border:1px solid rgba(31,217,164,0.25);color:var(--teal);font-size:11px;font-weight:600;padding:2px 9px;border-radius:10px}
+    /* Users slider */
+    .slider-section{margin-bottom:28px}
+    .slider-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:13px;color:var(--text2)}
+    .slider-val{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--accent)}
+    input[type=range]{width:100%;appearance:none;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;outline:none;cursor:pointer}
+    input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;background:var(--accent);border-radius:50%;box-shadow:0 0 0 3px rgba(59,139,247,0.2)}
+    /* Quote result card */
+    .quote-result{background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:28px;margin-bottom:24px;display:none}
+    .quote-result.show{display:block}
+    .qr-title{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .qr-rows{display:flex;flex-direction:column;gap:0}
+    .qr-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
+    .qr-row:last-child{border:none}
+    .qr-label{color:var(--text2)}
+    .qr-val{color:var(--text);font-weight:500}
+    .qr-total{font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--teal)}
+    .qr-note{font-size:11px;color:var(--text3);margin-top:12px;line-height:1.6}
+    /* Contact form */
+    .contact-section{display:none}
+    .contact-section.show{display:block}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-grid .full{grid-column:1/-1}
+    .field{display:flex;flex-direction:column;gap:5px}
+    .field label{font-size:12px;color:var(--text2);font-weight:500}
+    .fi,.fs{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;width:100%;transition:border-color .2s,box-shadow .2s}
+    .fi:focus,.fs:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,139,247,0.08)}
+    .fi::placeholder{color:var(--text3)}
+    .fs{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23505D78' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+    .fs option{background:#0c1221}
+    /* Buttons */
+    .btn-primary{background:var(--accent);color:#fff;padding:12px 26px;border-radius:8px;font-family:var(--font-body);font-size:14px;font-weight:600;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:opacity .2s,transform .15s}
+    .btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+    .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .btn-teal{background:var(--teal);color:#04070f}
+    .btn-wa{background:#25D366;color:#fff}
+    .btn-ghost{background:transparent;color:var(--text2);padding:12px 20px;border-radius:8px;font-family:var(--font-body);font-size:14px;font-weight:500;border:1px solid var(--border2);display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+    .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,.25)}
+    .action-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+    /* Enterprise / source CTA */
+    .custom-cta{background:rgba(31,217,164,0.05);border:1px solid rgba(31,217,164,0.18);border-radius:12px;padding:24px;text-align:center;display:none}
+    .custom-cta.show{display:block}
+    .custom-cta h3{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+    .custom-cta p{font-size:13px;color:var(--text2);margin-bottom:16px}
+    /* Success */
+    .success-box{display:none;background:rgba(31,217,164,0.06);border:1px solid rgba(31,217,164,0.2);border-radius:12px;padding:28px;text-align:center}
+    .success-box.show{display:block}
+    .success-box h3{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--teal);margin-bottom:8px}
+    .success-box p{font-size:14px;color:var(--text2);margin-bottom:16px}
+    /* Error */
+    .error-msg{display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:12px 16px;font-size:14px;color:#FDA4AF;margin-bottom:16px}
+    .error-msg.show{display:block}
+    footer{border-top:1px solid var(--border);padding:32px 2rem;text-align:center}
+    .footer-links{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+    .footer-links a{font-size:13px;color:var(--text3);transition:color .2s}.footer-links a:hover{color:var(--text2)}
+    .footer-copy{font-size:12px;color:var(--text3)}
+    @media(max-width:640px){.plan-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:1}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo"><span>Musk</span><span>-IT</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/book.html">Book Demo</a>
+      <a href="/pay.html">Pay Now</a>
+      <a href="https://muskit.in" target="_blank" style="color:var(--text3)">muskit.in ↗</a>
+      <a href="https://wa.me/917047859422" target="_blank" class="btn-nav">💬 WhatsApp</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-eyebrow">Instant Pricing</div>
+  <h1 class="page-title">Build your quote</h1>
+  <p class="page-sub">Choose your plan, users and billing cycle. Get an instant price with GST breakdown — no calls needed for Professional plan.</p>
+
+  <!-- Step tabs -->
+  <div class="steps">
+    <div class="step-tab active" id="tab1"><span class="num">1</span>Choose plan</div>
+    <div class="step-tab" id="tab2"><span class="num">2</span>Configure</div>
+    <div class="step-tab" id="tab3"><span class="num">3</span>Your quote</div>
+  </div>
+
+  <div class="error-msg" id="errMsg"></div>
+
+  <!-- Step 1: Plans -->
+  <div id="step1">
+    <div class="plan-grid">
+      <div class="plan-card" data-plan="professional" onclick="selectPlan('professional')">
+        <div class="check-indicator">✓</div>
+        <div class="plan-tag" style="color:var(--accent)">Professional</div>
+        <div class="plan-name">Professional</div>
+        <div class="plan-price" id="pro-price">₹<span id="pro-amt">999</span><sub>/user/mo</sub></div>
+        <div class="plan-desc">BOQ, drawings, execution dashboard. Up to 10 users.</div>
+      </div>
+      <div class="plan-card enterprise" data-plan="enterprise" onclick="selectPlan('enterprise')">
+        <div class="check-indicator">✓</div>
+        <div class="plan-tag" style="color:var(--teal)">Most popular</div>
+        <div class="plan-name">Enterprise AI</div>
+        <div class="plan-price" style="font-size:18px;padding-top:4px">Custom pricing</div>
+        <div class="plan-desc">Full AI suite, unlimited users, dedicated success manager.</div>
+      </div>
+      <div class="plan-card" data-plan="source" onclick="selectPlan('source')">
+        <div class="check-indicator">✓</div>
+        <div class="plan-tag" style="color:var(--amber)">Source License</div>
+        <div class="plan-name">Source License</div>
+        <div class="plan-price" style="font-size:18px;padding-top:4px">Negotiated</div>
+        <div class="plan-desc">Full source code, on-premise deployment, white-label.</div>
+      </div>
+    </div>
+
+    <!-- Billing toggle (only relevant for Professional) -->
+    <div class="billing-row" id="billingToggleRow">
+      <span>Monthly billing</span>
+      <div class="toggle-wrap" id="billingToggle" onclick="toggleBilling()">
+        <div class="toggle-knob"></div>
+      </div>
+      <span>Annual billing</span>
+      <span class="save-pill">Save 20%</span>
+    </div>
+
+    <button class="btn-primary" onclick="goToStep2()" id="nextBtn1" disabled>
+      Continue → Configure
+    </button>
+  </div>
+
+  <!-- Step 2: Configure -->
+  <div id="step2" style="display:none">
+
+    <!-- Users (only for Professional) -->
+    <div id="usersSection">
+      <div class="slider-section">
+        <div class="slider-head">
+          <label style="font-size:13px;color:var(--text2);font-weight:500">Number of users</label>
+          <span class="slider-val"><span id="usersDisplay">5</span> users</span>
+        </div>
+        <input type="range" id="usersSlider" min="1" max="200" value="5" oninput="updateUsers(this.value)">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px">
+          <span>1 user</span><span>200+ users</span>
+        </div>
+      </div>
+
+      <!-- Live price preview -->
+      <div class="quote-result show" id="liveQuote">
+        <div class="qr-title">💡 Instant price estimate</div>
+        <div class="qr-rows">
+          <div class="qr-row"><span class="qr-label">Plan</span><span class="qr-val" id="qSummPlan">—</span></div>
+          <div class="qr-row"><span class="qr-label">Billing</span><span class="qr-val" id="qSummBilling">—</span></div>
+          <div class="qr-row"><span class="qr-label">Users</span><span class="qr-val" id="qSummUsers">—</span></div>
+          <div class="qr-row"><span class="qr-label">Subtotal</span><span class="qr-val" id="qSummBase">—</span></div>
+          <div class="qr-row"><span class="qr-label">GST (18%)</span><span class="qr-val" id="qSummGst">—</span></div>
+          <div class="qr-row"><span class="qr-label">Total payable</span><span class="qr-total" id="qSummTotal">—</span></div>
+        </div>
+        <div class="qr-note">Valid for 14 days · GST invoice included · Pricing in INR</div>
+      </div>
+    </div>
+
+    <!-- Custom plan CTA -->
+    <div class="custom-cta" id="customCta">
+      <h3>Custom quote for <span id="customPlanName">Enterprise AI</span></h3>
+      <p>This plan is priced based on your team size, project portfolio and deployment requirements. Ankit will send a tailored proposal within 4 hours.</p>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px">
+      <button class="btn-ghost" onclick="goToStep1()">← Back</button>
+      <button class="btn-primary" onclick="goToStep3()" id="nextBtn2">Get My Quote →</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Contact + Final Quote -->
+  <div id="step3" style="display:none">
+    <div class="success-box" id="successBox">
+      <h3>✓ Quote sent to your email!</h3>
+      <p>Ankit will follow up within 4 hours on WhatsApp or email.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <a href="https://wa.me/917047859422?text=Hi%20Ankit%2C%20I%20just%20built%20a%20quote%20on%20sales.muskit.in" target="_blank" class="btn-primary btn-wa">💬 WhatsApp Ankit Now</a>
+        <a href="/book.html" class="btn-primary btn-teal">📅 Book Demo</a>
+        <a href="/pay.html" class="btn-ghost">Pay Now →</a>
+      </div>
+    </div>
+
+    <div id="step3form">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Enter your details to receive this quote by email and get a call from Ankit.</p>
+      <div class="form-grid">
+        <div class="field"><label>Full Name *</label><input class="fi" id="cName" placeholder="Your name" required></div>
+        <div class="field"><label>Organisation *</label><input class="fi" id="cOrg" placeholder="Company / EPC firm" required></div>
+        <div class="field"><label>Work Email *</label><input class="fi" id="cEmail" type="email" placeholder="you@company.com" required></div>
+        <div class="field"><label>WhatsApp / Phone *</label><input class="fi" id="cPhone" placeholder="+91 XXXXX XXXXX" required></div>
+        <div class="field full"><label>Anything else we should know?</label><input class="fi" id="cMsg" placeholder="Project type, special requirements..."></div>
+      </div>
+      <div class="action-row">
+        <button class="btn-ghost" onclick="goToStep2()">← Back</button>
+        <button class="btn-primary btn-teal" onclick="submitQuote()" id="submitQuoteBtn">Send My Quote →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://muskit.in">muskit.in</a>
+    <a href="/book.html">Book Demo</a>
+    <a href="/pay.html">Pay Now</a>
+    <a href="https://muskit.in/privacy-policy.html">Privacy</a>
+    <a href="mailto:ankitbiswassharma@muskit.in">Email Sales</a>
+  </div>
+  <div class="footer-copy">© 2026 Musk-IT · All Rights Reserved</div>
+</footer>
+
+<script>
+let selectedPlan = null;
+let annualBilling = false;
+let userCount = 5;
+const RATES = { monthly: 999, annual: 799 };
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`[data-plan="${plan}"]`).classList.add('selected');
+  document.getElementById('nextBtn1').disabled = false;
+  document.getElementById('billingToggleRow').style.display = plan === 'professional' ? 'flex' : 'none';
+  updateLiveQuote();
+}
+
+function toggleBilling() {
+  annualBilling = !annualBilling;
+  const t = document.getElementById('billingToggle');
+  t.classList.toggle('on', annualBilling);
+  document.getElementById('pro-amt').textContent = annualBilling ? '799' : '999';
+  updateLiveQuote();
+}
+
+function updateUsers(v) {
+  userCount = parseInt(v);
+  document.getElementById('usersDisplay').textContent = userCount;
+  updateLiveQuote();
+}
+
+function updateLiveQuote() {
+  if (selectedPlan !== 'professional') return;
+  const rate = annualBilling ? RATES.annual : RATES.monthly;
+  let base = rate * userCount;
+  if (annualBilling) base *= 12;
+  const gst = Math.round(base * 0.18 * 100) / 100;
+  const total = Math.round((base + gst) * 100) / 100;
+  const fmt = n => '₹' + n.toLocaleString('en-IN');
+  document.getElementById('qSummPlan').textContent = 'Professional';
+  document.getElementById('qSummBilling').textContent = annualBilling ? 'Annual (save 20%)' : 'Monthly';
+  document.getElementById('qSummUsers').textContent = userCount + ' users';
+  document.getElementById('qSummBase').textContent = fmt(base) + (annualBilling ? '/year' : '/month');
+  document.getElementById('qSummGst').textContent = fmt(gst);
+  document.getElementById('qSummTotal').textContent = fmt(total) + (annualBilling ? '/year' : '/month');
+}
+
+function goToStep2() {
+  if (!selectedPlan) return;
+  setStep(2);
+  document.getElementById('usersSection').style.display = selectedPlan === 'professional' ? 'block' : 'none';
+  document.getElementById('liveQuote').style.display = selectedPlan === 'professional' ? 'block' : 'none';
+  const customCta = document.getElementById('customCta');
+  customCta.className = 'custom-cta' + (selectedPlan !== 'professional' ? ' show' : '');
+  document.getElementById('customPlanName').textContent = selectedPlan === 'enterprise' ? 'Enterprise AI' : 'Source License';
+  updateLiveQuote();
+}
+
+function goToStep1() { setStep(1); }
+function goToStep3() { setStep(3); }
+
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById(`step${i}`).style.display = i === n ? 'block' : 'none';
+    const tab = document.getElementById(`tab${i}`);
+    tab.classList.toggle('active', i === n);
+    tab.classList.toggle('done', i < n);
+  });
+}
+
+async function submitQuote() {
+  const name  = document.getElementById('cName').value.trim();
+  const org   = document.getElementById('cOrg').value.trim();
+  const email = document.getElementById('cEmail').value.trim();
+  const phone = document.getElementById('cPhone').value.trim();
+  const msg   = document.getElementById('cMsg').value.trim();
+
+  if (!name || !org || !email || !phone) {
+    showError('Please fill in all required fields.');
+    return;
+  }
+
+  const btn = document.getElementById('submitQuoteBtn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+
+  try {
+    const res = await fetch('/api/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        plan: selectedPlan, billing: annualBilling ? 'annual' : 'monthly',
+        users: userCount, name, organisation: org, email, phone, message: msg,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+
+    // Store for pay page
+    sessionStorage.setItem('muskit_quote', JSON.stringify({
+      plan: selectedPlan, billing: annualBilling ? 'annual' : 'monthly',
+      users: userCount, name, organisation: org, email, phone,
+      amount: data.quote?.total_amount,
+      lead_id: data.lead_id,
+    }));
+
+    document.getElementById('step3form').style.display = 'none';
+    document.getElementById('successBox').classList.add('show');
+  } catch (err) {
+    showError(err.message);
+    btn.disabled = false; btn.textContent = 'Send My Quote →';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errMsg');
+  el.textContent = '⚠ ' + msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+updateLiveQuote();
+</script>
+
+</body>
+</html>

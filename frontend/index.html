@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Musk-IT Sales | AI Execution ERP for EPC & Infrastructure</title>
+  <meta name="description" content="Get pricing, book a demo, or purchase Musk-IT — the AI-powered ERP built for EPC and infrastructure teams.">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#04070f;--bg2:#080d1a;--bg3:#0c1221;--surface:#101828;--surface2:#162033;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--accent:#3B8BF7;--teal:#1FD9A4;--amber:#F5A623;--text:#F0F4FF;--text2:#8B97B4;--text3:#505D78;--font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.6;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(16px);background:rgba(4,7,15,0.9);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center}
+    .nav-inner{max-width:1080px;width:100%;margin:auto;display:flex;align-items:center;justify-content:space-between}
+    .logo{font-family:var(--font-head);font-size:20px;font-weight:800;letter-spacing:-.5px}
+    .logo span:last-child{color:var(--accent)}
+    .nav-links{display:flex;align-items:center;gap:8px}
+    .nav-links a{font-size:13px;color:var(--text2);padding:6px 10px;border-radius:6px;transition:all .2s}
+    .nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+    .btn-nav-ghost{border:1px solid var(--border2);color:var(--text2)!important;padding:6px 14px!important;border-radius:7px!important}
+    .btn-nav-ghost:hover{border-color:rgba(255,255,255,.25)!important;color:var(--text)!important}
+    .btn-nav-accent{background:var(--accent)!important;color:#fff!important;padding:7px 16px!important;border-radius:7px!important;font-weight:500}
+    .btn-nav-accent:hover{opacity:.88!important;background:var(--accent)!important}
+
+    /* HERO */
+    .hero{min-height:100vh;display:flex;align-items:center;padding:80px 2rem 60px;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse at center,rgba(59,139,247,0.06) 0%,transparent 70%);pointer-events:none}
+    .hero-inner{max-width:1080px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 460px;gap:56px;align-items:center}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(59,139,247,0.08);border:1px solid rgba(59,139,247,0.18);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.5px;margin-bottom:20px}
+    .hero-title{font-family:var(--font-head);font-size:clamp(32px,5vw,58px);font-weight:800;letter-spacing:-2px;line-height:1.04;color:var(--text);margin-bottom:18px}
+    .hero-title .hl{color:var(--accent)}
+    .hero-sub{font-size:16px;color:var(--text2);line-height:1.75;margin-bottom:32px;max-width:480px}
+    .hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:36px}
+    .btn-hero-primary{background:var(--accent);color:#fff;padding:13px 28px;border-radius:9px;font-family:var(--font-body);font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:all .2s;border:none;cursor:pointer}
+    .btn-hero-primary:hover{opacity:.88;transform:translateY(-2px)}
+    .btn-hero-teal{background:var(--teal);color:#04070f}
+    .btn-hero-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:12px 22px;border-radius:9px;font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:7px;transition:all .2s}
+    .btn-hero-ghost:hover{border-color:rgba(255,255,255,.3);color:var(--text)}
+    .hero-trust{display:flex;gap:20px;flex-wrap:wrap}
+    .trust-item{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text3)}
+    .trust-dot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+
+    /* Contact card (hero right) */
+    .contact-card{background:var(--surface);border:1px solid var(--border2);border-radius:18px;padding:28px;position:relative;overflow:hidden}
+    .contact-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--teal))}
+    .cc-title{font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px}
+    .cc-sub{font-size:13px;color:var(--text3);margin-bottom:20px}
+    .cc-methods{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+    .cc-method{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;transition:all .2s;cursor:pointer}
+    .cc-method:hover{border-color:var(--border2);transform:translateX(3px)}
+    .cc-method .icon{font-size:18px;width:32px;text-align:center;flex-shrink:0}
+    .cc-method .label{font-size:14px;font-weight:600;color:var(--text)}
+    .cc-method .hint{font-size:11px;color:var(--text3)}
+    .cc-method.highlight{border-color:rgba(37,211,102,0.25);background:rgba(37,211,102,0.04)}
+    .cc-method.highlight:hover{border-color:rgba(37,211,102,0.45)}
+    .form-mini{display:none}
+    .form-mini.show{display:block}
+    .fi-mini{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;font-family:var(--font-body);font-size:13px;color:var(--text);outline:none;width:100%;margin-bottom:8px;transition:border-color .2s}
+    .fi-mini:focus{border-color:var(--accent)}
+    .fi-mini::placeholder{color:var(--text3)}
+    .btn-send{width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s}
+    .btn-send:hover:not(:disabled){opacity:.88}
+    .btn-send:disabled{opacity:.4;cursor:not-allowed}
+    .send-success{display:none;background:rgba(31,217,164,0.08);border:1px solid rgba(31,217,164,0.2);border-radius:8px;padding:12px;font-size:13px;color:var(--teal);text-align:center;margin-top:8px}
+    .send-success.show{display:block}
+    .send-err{display:none;font-size:12px;color:#FDA4AF;margin-bottom:8px}
+    .send-err.show{display:block}
+
+    /* WHY SECTION */
+    .section{padding:80px 2rem;max-width:1080px;margin:0 auto}
+    .section-eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px;text-align:center}
+    .section-title{font-family:var(--font-head);font-size:clamp(24px,3.5vw,38px);font-weight:800;letter-spacing:-1px;color:var(--text);text-align:center;margin-bottom:12px;line-height:1.15}
+    .section-sub{font-size:15px;color:var(--text2);text-align:center;max-width:520px;margin:0 auto 48px;line-height:1.7}
+
+    .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .feat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;transition:border-color .2s}
+    .feat:hover{border-color:var(--border2)}
+    .feat-icon{font-size:24px;margin-bottom:12px}
+    .feat-title{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+    .feat-desc{font-size:13px;color:var(--text2);line-height:1.65}
+
+    /* PLANS */
+    .plans-wrap{padding:80px 2rem;background:var(--bg2)}
+    .plans-inner{max-width:1000px;margin:0 auto}
+    .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+    .plan{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;transition:all .2s}
+    .plan:hover{border-color:var(--border2);transform:translateY(-3px)}
+    .plan.featured{border-color:rgba(31,217,164,0.3);background:rgba(31,217,164,0.03)}
+    .plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--teal);color:#04070f;font-size:11px;font-weight:700;padding:3px 12px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+    .plan-name{font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px}
+    .plan-price{font-family:var(--font-head);font-size:32px;font-weight:800;letter-spacing:-1.5px;margin:12px 0 4px;color:var(--text)}
+    .plan-price sup{font-size:16px;font-weight:400;vertical-align:super;margin-right:2px}
+    .plan-price sub{font-size:13px;font-weight:400;vertical-align:baseline}
+    .plan-desc{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.6}
+    .plan-features{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+    .plan-features li{font-size:13px;color:var(--text2);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+    .plan-features li::before{content:'✓';color:var(--teal);font-weight:700;flex-shrink:0;margin-top:1px}
+    .btn-plan{width:100%;padding:11px;border-radius:8px;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+    .btn-plan-primary{background:var(--accent);color:#fff}
+    .btn-plan-primary:hover{opacity:.88}
+    .btn-plan-teal{background:var(--teal);color:#04070f}
+    .btn-plan-teal:hover{opacity:.88}
+    .btn-plan-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+    .btn-plan-ghost:hover{border-color:rgba(255,255,255,.25);color:var(--text)}
+
+    /* STATS */
+    .stats-band{background:var(--bg3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:48px 2rem}
+    .stats-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+    .stat-item .val{font-family:var(--font-head);font-size:36px;font-weight:800;letter-spacing:-1.5px;color:var(--text)}
+    .stat-item .lbl{font-size:13px;color:var(--text3);margin-top:4px}
+
+    /* FAQ */
+    .faq-list{display:flex;flex-direction:column;gap:10px;max-width:680px;margin:40px auto 0}
+    .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+    .faq-q{padding:16px 20px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text);display:flex;justify-content:space-between;align-items:center;transition:background .2s}
+    .faq-q:hover{background:rgba(255,255,255,0.02)}
+    .faq-q .arrow{transition:transform .2s;color:var(--text3)}
+    .faq-item.open .faq-q .arrow{transform:rotate(180deg)}
+    .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease}
+    .faq-item.open .faq-a{max-height:300px}
+    .faq-a-inner{padding:4px 20px 16px;font-size:14px;color:var(--text2);line-height:1.7}
+
+    /* CTA BAND */
+    .cta-band{padding:80px 2rem;text-align:center;background:var(--bg2);border-top:1px solid var(--border)}
+    .cta-title{font-family:var(--font-head);font-size:clamp(24px,4vw,42px);font-weight:800;letter-spacing:-1.2px;margin-bottom:12px}
+    .cta-sub{font-size:15px;color:var(--text2);margin-bottom:32px;max-width:460px;margin-left:auto;margin-right:auto;line-height:1.7}
+    .cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+    /* FOOTER */
+    footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 2rem 24px}
+    .footer-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;margin-bottom:32px}
+    .footer-brand .logo{font-family:var(--font-head);font-size:20px;font-weight:800;margin-bottom:10px;display:block}
+    .footer-brand .logo span:last-child{color:var(--accent)}
+    .footer-brand p{font-size:13px;color:var(--text3);line-height:1.65;max-width:220px}
+    .footer-col h4{font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+    .footer-col a{display:block;font-size:13px;color:var(--text3);margin-bottom:8px;transition:color .2s}
+    .footer-col a:hover{color:var(--text2)}
+    .footer-bottom{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+    .footer-copy{font-size:12px;color:var(--text3)}
+
+    /* WA float */
+    .wa-float{position:fixed;bottom:24px;right:24px;z-index:90;background:#25D366;color:#fff;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 20px rgba(37,211,102,0.4);transition:transform .2s;animation:floatin .6s 1s both}
+    .wa-float:hover{transform:scale(1.1)}
+    @keyframes floatin{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+
+    @media(max-width:900px){
+      .hero-inner{grid-template-columns:1fr}
+      .features-grid{grid-template-columns:1fr 1fr}
+      .plans-grid{grid-template-columns:1fr}
+      .stats-inner{grid-template-columns:1fr 1fr}
+      .footer-inner{grid-template-columns:1fr}
+    }
+    @media(max-width:540px){
+      .features-grid{grid-template-columns:1fr}
+      .nav-links .nav-links-main{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo"><span>Musk</span><span>-IT</span></a>
+    <div class="nav-links">
+      <span class="nav-links-main" style="display:contents">
+        <a href="#plans">Pricing</a>
+        <a href="/book.html">Book Demo</a>
+        <a href="/quote.html">Get Quote</a>
+        <a href="https://muskit.in" target="_blank" style="color:var(--text3)">muskit.in ↗</a>
+      </span>
+      <a href="https://wa.me/917047859422" target="_blank" class="btn-nav-ghost">💬 WhatsApp</a>
+      <a href="/pay.html" class="btn-nav-accent">Buy Now</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block"></span>
+        AI Execution ERP · EPC & Infrastructure
+      </div>
+      <h1 class="hero-title">
+        The ERP that <span class="hl">predicts</span><br>before it manages
+      </h1>
+      <p class="hero-sub">Musk-IT brings AI-powered risk prediction, BOQ management, drawing control and real-time execution intelligence to EPC and infrastructure teams.</p>
+      <div class="hero-ctas">
+        <a href="/book.html" class="btn-hero-primary btn-hero-teal">📅 Book Free Demo</a>
+        <a href="/quote.html" class="btn-hero-primary">Get Instant Quote →</a>
+        <a href="https://muskit.in/ai-engine/index.html" target="_blank" class="btn-hero-ghost">Try AI Predictor ↗</a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-item"><div class="trust-dot"></div>Response within 4 hours</div>
+        <div class="trust-item"><div class="trust-dot"></div>No credit card to start</div>
+        <div class="trust-item"><div class="trust-dot"></div>GST invoice included</div>
+      </div>
+    </div>
+
+    <!-- CONTACT CARD -->
+    <div class="contact-card">
+      <div class="cc-title">Talk to Ankit directly</div>
+      <div class="cc-sub">Sales Lead · Responds within 4 hours</div>
+      <div class="cc-methods" id="ccMethods">
+        <a href="https://wa.me/917047859422?text=Hi%20Ankit%2C%20I%27d%20like%20to%20know%20more%20about%20Musk-IT." target="_blank" class="cc-method highlight">
+          <span class="icon">💬</span>
+          <div><div class="label">WhatsApp</div><div class="hint">Fastest · Usually replies in minutes</div></div>
+        </a>
+        <a href="/book.html" class="cc-method">
+          <span class="icon">📅</span>
+          <div><div class="label">Book a Demo</div><div class="hint">30-min live walkthrough · Pick a slot</div></div>
+        </a>
+        <div class="cc-method" onclick="showQuickForm()">
+          <span class="icon">✉</span>
+          <div><div class="label">Send Enquiry</div><div class="hint">We reply within 4 business hours</div></div>
+        </div>
+        <a href="tel:+917047859422" class="cc-method">
+          <span class="icon">📞</span>
+          <div><div class="label">Call Ankit</div><div class="hint">+91 70478 59422</div></div>
+        </a>
+      </div>
+
+      <!-- Quick form (shown on "Send Enquiry" click) -->
+      <div class="form-mini" id="quickForm">
+        <div class="send-err" id="sendErr"></div>
+        <input class="fi-mini" id="qfName"  placeholder="Your name *">
+        <input class="fi-mini" id="qfEmail" type="email" placeholder="Email *">
+        <input class="fi-mini" id="qfPhone" placeholder="WhatsApp / Phone *">
+        <input class="fi-mini" id="qfOrg"   placeholder="Organisation">
+        <input class="fi-mini" id="qfMsg"   placeholder="What are you looking for?">
+        <button class="btn-send" id="sendBtn" onclick="sendQuickLead()">Send Enquiry →</button>
+        <div class="send-success" id="sendSuccess">✓ Sent! Ankit will reply within 4 hours. <a href="https://wa.me/917047859422" target="_blank" style="color:var(--teal)">WhatsApp for faster response →</a></div>
+        <div style="text-align:right;margin-top:6px"><button onclick="hideQuickForm()" style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer">← Back to contact options</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div class="stat-item"><div class="val">₹340Cr+</div><div class="lbl">Projects managed</div></div>
+    <div class="stat-item"><div class="val">21%</div><div class="lbl">Schedule variance reduced</div></div>
+    <div class="stat-item"><div class="val">14</div><div class="lbl">Package types supported</div></div>
+    <div class="stat-item"><div class="val">8+</div><div class="lbl">Modules out of the box</div></div>
+  </div>
+</div>
+
+<!-- WHY MUSK-IT -->
+<div style="padding:80px 2rem;background:var(--bg3)">
+  <div style="max-width:1080px;margin:0 auto">
+    <div class="section-eyebrow">Why Musk-IT</div>
+    <h2 class="section-title">Built for how EPC actually works</h2>
+    <p class="section-sub">Not a generic ERP bolted onto construction. Every module is purpose-built for multi-package, multi-site EPC execution.</p>
+    <div class="features-grid">
+      <div class="feat"><div class="feat-icon">🤖</div><div class="feat-title">AI Risk Prediction</div><div class="feat-desc">Predict schedule and budget variances before they happen — not after. Trained on EPC-specific patterns.</div></div>
+      <div class="feat"><div class="feat-icon">📐</div><div class="feat-title">Drawing Control</div><div class="feat-desc">Full revision control, transmittal management and multi-discipline drawing register in one place.</div></div>
+      <div class="feat"><div class="feat-icon">📊</div><div class="feat-title">BOQ Intelligence</div><div class="feat-desc">Live BOQ vs actuals tracking with item-level variance alerts. No more spreadsheets.</div></div>
+      <div class="feat"><div class="feat-icon">👷</div><div class="feat-title">Resource Planning</div><div class="feat-desc">Labour, equipment and subcontractor allocation across packages — with utilisation dashboards.</div></div>
+      <div class="feat"><div class="feat-icon">📦</div><div class="feat-title">Procurement & RFQ</div><div class="feat-desc">Vendor management, multi-quote comparison and PO tracking integrated with BOQ.</div></div>
+      <div class="feat"><div class="feat-icon">📈</div><div class="feat-title">Executive Dashboard</div><div class="feat-desc">Real-time S-curves, earned value and milestone tracking for every stakeholder level.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PLANS -->
+<div class="plans-wrap" id="plans">
+  <div class="plans-inner">
+    <div class="section-eyebrow">Pricing</div>
+    <h2 class="section-title">Simple, transparent pricing</h2>
+    <p class="section-sub">Start with Professional. Scale to Enterprise AI when you need the full intelligence suite.</p>
+    <div class="plans-grid">
+
+      <div class="plan">
+        <div class="plan-name">Professional</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:8px">Per user, per month</div>
+        <div class="plan-price"><sup>₹</sup>999<sub>/user/mo</sub></div>
+        <div class="plan-desc">Best for growing EPC teams. Billed monthly or save 20% annually (₹799/user/mo).</div>
+        <ul class="plan-features">
+          <li>BOQ management & variance tracking</li>
+          <li>Drawing register & revision control</li>
+          <li>Resource planning module</li>
+          <li>Procurement & RFQ workflows</li>
+          <li>Executive S-curve dashboard</li>
+          <li>Up to 10 users</li>
+          <li>Email support · 24h response SLA</li>
+        </ul>
+        <a href="/quote.html?plan=professional"><button class="btn-plan btn-plan-primary">Get Quote →</button></a>
+      </div>
+
+      <div class="plan featured">
+        <div class="plan-badge">Most Popular</div>
+        <div class="plan-name">Enterprise AI</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:8px">Custom pricing</div>
+        <div class="plan-price" style="font-size:22px;letter-spacing:-.5px;padding:12px 0">Custom proposal</div>
+        <div class="plan-desc">Full AI Intelligence Suite for large teams and multi-project portfolios.</div>
+        <ul class="plan-features">
+          <li>Everything in Professional</li>
+          <li>AI Risk Prediction Engine</li>
+          <li>AI Cost Intelligence (EAC forecasting)</li>
+          <li>Unlimited users</li>
+          <li>Dedicated success manager</li>
+          <li>SLA-backed support (4h response)</li>
+          <li>Custom integrations</li>
+          <li>On-boarding & training included</li>
+        </ul>
+        <a href="https://wa.me/917047859422?text=Hi%20Ankit%2C%20I%27d%20like%20a%20quote%20for%20Enterprise%20AI." target="_blank"><button class="btn-plan btn-plan-teal">💬 Talk to Ankit</button></a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">Source License</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:8px">One-time negotiated</div>
+        <div class="plan-price" style="font-size:22px;letter-spacing:-.5px;padding:12px 0">Negotiated</div>
+        <div class="plan-desc">Full source code ownership. On-premise deployment. White-label rights.</div>
+        <ul class="plan-features">
+          <li>Full source code ownership</li>
+          <li>On-premise / private cloud deploy</li>
+          <li>White-label & rebrand rights</li>
+          <li>12-month engineering support</li>
+          <li>No per-user licensing fees</li>
+          <li>Technology transfer & docs</li>
+        </ul>
+        <a href="/book.html"><button class="btn-plan btn-plan-ghost">Book Discovery Call →</button></a>
+      </div>
+
+    </div>
+    <div style="text-align:center;margin-top:20px;font-size:13px;color:var(--text3)">All prices exclude 18% GST · Invoice provided · <a href="/quote.html" style="color:var(--accent)">Use quote builder for exact amount →</a></div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div style="padding:80px 2rem;max-width:1080px;margin:0 auto">
+  <div class="section-eyebrow">FAQ</div>
+  <h2 class="section-title">Common questions</h2>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How quickly can my team go live? <span class="arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">Most teams are live within 2–5 business days. Ankit's onboarding covers account setup, data import and a team training session.</div></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Do you support on-premise deployment? <span class="arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">Yes — the Source License includes full on-premise deployment. Enterprise AI can also be deployed on your private cloud with a custom agreement.</div></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is there a free trial? <span class="arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">We offer a free 30-minute live demo with Ankit. The AI Predictor is also available free at muskit.in. Paid trials can be arranged for Enterprise — ask Ankit.</div></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What payment methods are accepted? <span class="arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">Razorpay (all cards, UPI, net banking), direct UPI, and bank transfer / NEFT. GST invoice issued within 24 hours of payment confirmation.</div></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can we import our existing BOQ and drawings? <span class="arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">Yes. Musk-IT supports Excel/CSV BOQ import and bulk drawing upload. Ankit's team assists with the initial data migration at no extra cost.</div></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What kind of support is included? <span class="arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">Professional plan includes email support with 24h response SLA. Enterprise AI includes a dedicated success manager and 4-hour SLA. All plans include WhatsApp access to Ankit's team.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-band">
+  <h2 class="cta-title">Ready to see it in action?</h2>
+  <p class="cta-sub">Book a 30-minute demo and Ankit will show you exactly how Musk-IT works for your project type.</p>
+  <div class="cta-btns">
+    <a href="/book.html" class="btn-hero-primary btn-hero-teal">📅 Book Free Demo</a>
+    <a href="https://wa.me/917047859422?text=Hi%20Ankit%2C%20I%27d%20like%20to%20learn%20more%20about%20Musk-IT." target="_blank" class="btn-hero-primary" style="background:#25D366">💬 WhatsApp Now</a>
+    <a href="/pay.html" class="btn-hero-ghost">Buy Direct →</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="logo"><span>Musk</span><span>-IT</span></span>
+      <p>AI Execution ERP for EPC and infrastructure teams. Built in India.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Sales</h4>
+      <a href="/quote.html">Get Quote</a>
+      <a href="/book.html">Book Demo</a>
+      <a href="/pay.html">Buy Now</a>
+      <a href="https://wa.me/917047859422" target="_blank">💬 WhatsApp</a>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="https://muskit.in" target="_blank">muskit.in</a>
+      <a href="https://muskit.in/ai-engine/index.html" target="_blank">AI Predictor</a>
+      <a href="https://muskit.in/docs/index.html" target="_blank">Docs</a>
+      <a href="mailto:ankitbiswassharma@muskit.in">ankitbiswassharma@muskit.in</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Musk-IT · All Rights Reserved</div>
+    <div style="font-size:12px;color:var(--text3)">+91 70478 59422 · ankitbiswassharma@muskit.in</div>
+  </div>
+</footer>
+
+<!-- WhatsApp float -->
+<a href="https://wa.me/917047859422?text=Hi%20Ankit%2C%20I%27d%20like%20to%20know%20more%20about%20Musk-IT." target="_blank" class="wa-float" title="Chat with Ankit on WhatsApp">💬</a>
+
+<script>
+function showQuickForm() {
+  document.getElementById('ccMethods').style.display = 'none';
+  document.getElementById('quickForm').classList.add('show');
+}
+function hideQuickForm() {
+  document.getElementById('ccMethods').style.display = 'flex';
+  document.getElementById('quickForm').classList.remove('show');
+}
+
+async function sendQuickLead() {
+  const name  = document.getElementById('qfName').value.trim();
+  const email = document.getElementById('qfEmail').value.trim();
+  const phone = document.getElementById('qfPhone').value.trim();
+  if (!name || !email || !phone) {
+    showErr('Name, email and phone are required.');
+    return;
+  }
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const res = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name, email, phone,
+        organisation: document.getElementById('qfOrg').value.trim(),
+        message: document.getElementById('qfMsg').value.trim(),
+        source: 'hero_form',
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    document.getElementById('sendSuccess').classList.add('show');
+    btn.style.display = 'none';
+  } catch (err) {
+    showErr(err.message || 'Failed to send. Please WhatsApp Ankit directly.');
+    btn.disabled = false; btn.textContent = 'Send Enquiry →';
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('sendErr');
+  el.textContent = '⚠ ' + msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function toggleFaq(el) {
+  el.parentElement.classList.toggle('open');
+}
+</script>
+</body>
+</html>

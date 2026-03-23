@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Dashboard | Musk-IT Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#04070f;--bg2:#080d1a;--bg3:#0c1221;--surface:#101828;--surface2:#162033;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--accent:#3B8BF7;--teal:#1FD9A4;--amber:#F5A623;--red:#EF4444;--text:#F0F4FF;--text2:#8B97B4;--text3:#505D78;--font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;line-height:1.5;min-height:100vh}
+    a{color:inherit;text-decoration:none}
+    /* LOGIN */
+    #loginScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:2rem}
+    .login-box{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:36px;width:100%;max-width:380px;text-align:center}
+    .login-logo{font-family:var(--font-head);font-size:22px;font-weight:800;margin-bottom:6px}.login-logo span{color:var(--accent)}
+    .login-sub{font-size:13px;color:var(--text3);margin-bottom:24px}
+    .login-input{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:11px 14px;font-family:var(--font-body);font-size:14px;color:var(--text);width:100%;outline:none;margin-bottom:12px;transition:border-color .2s}
+    .login-input:focus{border-color:var(--accent)}
+    .login-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:12px;font-family:var(--font-head);font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
+    .login-btn:hover{opacity:.88}
+    .login-err{color:#FDA4AF;font-size:13px;margin-top:8px;display:none}
+    /* APP */
+    #app{display:none}
+    /* Top bar */
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar-logo{font-family:var(--font-head);font-size:17px;font-weight:800;letter-spacing:-.3px}.topbar-logo span{color:var(--accent)}
+    .topbar-right{display:flex;align-items:center;gap:12px}
+    .topbar-time{font-size:12px;color:var(--text3)}
+    .topbar-btn{font-size:12px;color:var(--text2);background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:6px;padding:5px 12px;cursor:pointer;transition:all .2s}
+    .topbar-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+    /* Layout */
+    .layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 56px)}
+    /* Sidebar */
+    .sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+    .nav-item{padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:9px;transition:all .2s;font-weight:500}
+    .nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .nav-item.active{background:rgba(59,139,247,0.1);color:var(--accent);border:1px solid rgba(59,139,247,0.15)}
+    .nav-item .badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px}
+    .nav-section{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:12px 12px 4px;margin-top:8px}
+    /* Main */
+    .main{padding:24px;overflow-y:auto}
+    /* Stats row */
+    .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+    .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border-color .2s}
+    .stat:hover{border-color:var(--border2)}
+    .stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+    .stat-val{font-family:var(--font-head);font-size:26px;font-weight:800;letter-spacing:-1px}
+    .stat-trend{font-size:11px;margin-top:3px}
+    /* Section header */
+    .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .sec-title{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text)}
+    /* Filters */
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+    .filter-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--border2);background:none;font-family:var(--font-body);font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s}
+    .filter-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .filter-btn.active{background:rgba(59,139,247,0.1);border-color:var(--accent);color:var(--accent)}
+    .search-input{padding:6px 12px;border-radius:8px;border:1px solid var(--border2);background:rgba(255,255,255,0.03);font-family:var(--font-body);font-size:13px;color:var(--text);outline:none;width:200px;transition:border-color .2s}
+    .search-input:focus{border-color:var(--accent)}
+    .search-input::placeholder{color:var(--text3)}
+    /* Lead table */
+    .leads-table{width:100%;border-collapse:collapse}
+    .leads-table th{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);font-weight:600}
+    .leads-table td{padding:12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+    .leads-table tr:hover td{background:rgba(255,255,255,0.02)}
+    .lead-name{color:var(--text);font-weight:500;font-size:14px}
+    .lead-org{font-size:11px;color:var(--text3);margin-top:1px}
+    /* Status badges */
+    .status{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:3px 9px;border-radius:10px}
+    .s-new{background:rgba(59,139,247,0.12);color:var(--accent);border:1px solid rgba(59,139,247,0.2)}
+    .s-contacted{background:rgba(245,166,35,0.12);color:var(--amber);border:1px solid rgba(245,166,35,0.2)}
+    .s-quoted{background:rgba(31,217,164,0.1);color:var(--teal);border:1px solid rgba(31,217,164,0.18)}
+    .s-demo_booked{background:rgba(138,43,226,0.12);color:#c084fc;border:1px solid rgba(138,43,226,0.2)}
+    .s-negotiating{background:rgba(249,115,22,0.12);color:#fb923c;border:1px solid rgba(249,115,22,0.2)}
+    .s-won{background:rgba(31,217,164,0.15);color:var(--teal);border:1px solid rgba(31,217,164,0.3)}
+    .s-lost{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.15)}
+    /* Action buttons */
+    .action-btns{display:flex;gap:4px;flex-wrap:wrap}
+    .act-btn{padding:4px 9px;border-radius:5px;border:1px solid var(--border2);background:none;font-family:var(--font-body);font-size:11px;color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap}
+    .act-btn:hover{border-color:rgba(255,255,255,.25);color:var(--text)}
+    .act-btn.wa{border-color:rgba(37,211,102,.25);color:#4ade80}.act-btn.wa:hover{background:rgba(37,211,102,.08)}
+    .act-btn.em{border-color:rgba(59,139,247,.25);color:var(--accent)}.act-btn.em:hover{background:rgba(59,139,247,.06)}
+    /* Lead detail panel */
+    #detailPanel{position:fixed;top:0;right:0;bottom:0;width:420px;background:var(--bg2);border-left:1px solid var(--border2);z-index:200;overflow-y:auto;transform:translateX(100%);transition:transform .3s;display:flex;flex-direction:column}
+    #detailPanel.open{transform:translateX(0)}
+    .dp-head{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2)}
+    .dp-title{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text)}
+    .dp-close{background:none;border:1px solid var(--border2);border-radius:6px;width:28px;height:28px;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center}
+    .dp-body{padding:20px 22px;flex:1}
+    .dp-section{margin-bottom:20px}
+    .dp-sec-title{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px}
+    .dp-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+    .dp-row:last-child{border:none}
+    .dp-label{color:var(--text2)}.dp-val{color:var(--text);font-weight:500;text-align:right;max-width:220px;word-break:break-word}
+    .status-select{background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-family:var(--font-body);font-size:13px;color:var(--text);outline:none;cursor:pointer;width:100%;margin-bottom:10px}
+    .notes-area{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:10px;font-family:var(--font-body);font-size:13px;color:var(--text);outline:none;width:100%;resize:vertical;min-height:80px;line-height:1.55;transition:border-color .2s}
+    .notes-area:focus{border-color:var(--accent)}
+    .dp-btn{width:100%;padding:9px;border-radius:7px;border:none;font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+    .dp-btn:hover{opacity:.88}
+    .dp-btn-acc{background:var(--accent);color:#fff}
+    .dp-btn-teal{background:var(--teal);color:#04070f}
+    .dp-btn-wa{background:#25D366;color:#fff}
+    .dp-btn-ghost{background:rgba(255,255,255,0.05);color:var(--text2);border:1px solid var(--border2)}
+    /* Activity log */
+    .activity-list{display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto}
+    .act-item{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:9px 12px}
+    .act-type{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+    .act-desc{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.5}
+    .act-time{font-size:11px;color:var(--text3);margin-top:3px}
+    /* Booking / payment tabs */
+    .page-view{display:none}.page-view.show{display:block}
+    /* Empty state */
+    .empty{text-align:center;padding:48px 0;color:var(--text3);font-size:14px}
+    /* Responsive */
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.stats-row{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Musk<span>-IT</span></div>
+    <div class="login-sub">Sales Dashboard · Admin Access</div>
+    <input type="password" class="login-input" id="loginPwd" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Access Dashboard →</button>
+    <div class="login-err" id="loginErr">Wrong password. Try again.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-logo">Musk<span>-IT</span> <span style="color:var(--text3);font-weight:400;font-size:13px;margin-left:6px">Sales CRM</span></div>
+    <div class="topbar-right">
+      <div class="topbar-time" id="topbarTime"></div>
+      <button class="topbar-btn" onclick="loadAll()">↻ Refresh</button>
+      <button class="topbar-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="showPage('leads')">📋 Leads <span class="badge" id="newBadge">0</span></div>
+      <div class="nav-item" onclick="showPage('bookings')">📅 Bookings</div>
+      <div class="nav-item" onclick="showPage('payments')">💰 Payments</div>
+      <div class="nav-section">Quick Actions</div>
+      <div class="nav-item" onclick="window.open('https://wa.me/917047859422','_blank')">💬 WhatsApp</div>
+      <div class="nav-item" onclick="window.open('mailto:ankitbiswassharma@muskit.in','_blank')">✉ Email</div>
+      <div class="nav-item" onclick="window.open('/','_blank')">🌐 Sales Site</div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+
+      <!-- Stats -->
+      <div class="stats-row" id="statsRow">
+        <div class="stat"><div class="stat-label">Total Leads</div><div class="stat-val" id="stTotal">—</div></div>
+        <div class="stat"><div class="stat-label">New</div><div class="stat-val" id="stNew" style="color:var(--accent)">—</div></div>
+        <div class="stat"><div class="stat-label">Demos Booked</div><div class="stat-val" id="stDemo" style="color:#c084fc">—</div></div>
+        <div class="stat"><div class="stat-label">Won</div><div class="stat-val" id="stWon" style="color:var(--teal)">—</div></div>
+        <div class="stat"><div class="stat-label">Revenue</div><div class="stat-val" id="stRev" style="color:var(--teal)">—</div></div>
+      </div>
+
+      <!-- LEADS PAGE -->
+      <div class="page-view show" id="page-leads">
+        <div class="sec-head">
+          <div class="sec-title">Leads</div>
+          <div style="display:flex;gap:8px">
+            <input type="text" class="search-input" placeholder="Search leads..." oninput="searchLeads(this.value)">
+          </div>
+        </div>
+        <div class="filters">
+          <button class="filter-btn active" onclick="filterLeads('', this)">All</button>
+          <button class="filter-btn" onclick="filterLeads('new', this)">New</button>
+          <button class="filter-btn" onclick="filterLeads('contacted', this)">Contacted</button>
+          <button class="filter-btn" onclick="filterLeads('quoted', this)">Quoted</button>
+          <button class="filter-btn" onclick="filterLeads('demo_booked', this)">Demo Booked</button>
+          <button class="filter-btn" onclick="filterLeads('won', this)">Won</button>
+          <button class="filter-btn" onclick="filterLeads('lost', this)">Lost</button>
+        </div>
+        <div id="leadsTableWrap" style="overflow-x:auto">
+          <table class="leads-table">
+            <thead>
+              <tr>
+                <th>Lead</th><th>Plan</th><th>Status</th><th>Date</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leadsBody"><tr><td colspan="5" class="empty">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BOOKINGS PAGE -->
+      <div class="page-view" id="page-bookings">
+        <div class="sec-head"><div class="sec-title">Demo Bookings</div></div>
+        <div id="bookingsContent"><div class="empty">Loading...</div></div>
+      </div>
+
+      <!-- PAYMENTS PAGE -->
+      <div class="page-view" id="page-payments">
+        <div class="sec-head"><div class="sec-title">Payments</div></div>
+        <div id="paymentsContent"><div class="empty">Loading...</div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Detail Panel -->
+<div id="detailPanel">
+  <div class="dp-head">
+    <div class="dp-title" id="dpTitle">Lead Details</div>
+    <button class="dp-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="dp-body" id="dpBody"></div>
+</div>
+
+<script>
+let adminToken = localStorage.getItem('muskit_admin_token');
+let allLeads = [];
+let currentFilter = '';
+let currentSearch = '';
+
+function doLogin() {
+  const pwd = document.getElementById('loginPwd').value;
+  fetch('/api/admin/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pwd }),
+  }).then(r => r.json()).then(data => {
+    if (data.token) {
+      adminToken = data.token;
+      localStorage.setItem('muskit_admin_token', adminToken);
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      loadAll();
+      startClock();
+    } else {
+      document.getElementById('loginErr').style.display = 'block';
+    }
+  }).catch(() => { document.getElementById('loginErr').style.display = 'block'; });
+}
+
+function doLogout() {
+  localStorage.removeItem('muskit_admin_token');
+  location.reload();
+}
+
+function api(path, opts = {}) {
+  return fetch(path, {
+    ...opts,
+    headers: { ...opts.headers, 'x-admin-token': adminToken, 'Content-Type': 'application/json' },
+  }).then(r => r.json());
+}
+
+function loadAll() {
+  loadStats();
+  loadLeads();
+}
+
+function loadStats() {
+  api('/api/admin/stats').then(s => {
+    document.getElementById('stTotal').textContent = s.total;
+    document.getElementById('stNew').textContent   = s.new;
+    document.getElementById('stDemo').textContent  = s.demo_booked;
+    document.getElementById('stWon').textContent   = s.won;
+    document.getElementById('stRev').textContent   = s.revenue ? '₹' + (s.revenue/1000).toFixed(0) + 'K' : '₹0';
+    document.getElementById('newBadge').textContent = s.new;
+  });
+}
+
+function loadLeads() {
+  api('/api/admin/leads').then(leads => {
+    allLeads = leads;
+    renderLeads();
+  });
+}
+
+function renderLeads() {
+  let filtered = allLeads;
+  if (currentFilter) filtered = filtered.filter(l => l.status === currentFilter);
+  if (currentSearch) {
+    const s = currentSearch.toLowerCase();
+    filtered = filtered.filter(l =>
+      l.name?.toLowerCase().includes(s) ||
+      l.email?.toLowerCase().includes(s) ||
+      l.organisation?.toLowerCase().includes(s)
+    );
+  }
+
+  const tbody = document.getElementById('leadsBody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">No leads found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(l => {
+    const waPhone = l.phone?.replace(/\D/g,'');
+    const waMsg = encodeURIComponent(`Hi ${l.name}, this is Ankit from Musk-IT. Thanks for your interest!`);
+    const dt = l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN') : '—';
+    return `<tr>
+      <td>
+        <div class="lead-name">${l.name}</div>
+        <div class="lead-org">${l.organisation || l.email}</div>
+        <div style="font-size:11px;color:var(--text3)">${l.email}</div>
+      </td>
+      <td><span style="font-size:12px;color:var(--text2)">${l.plan || '—'}</span></td>
+      <td><span class="status s-${l.status}">${l.status?.replace('_',' ')}</span></td>
+      <td style="font-size:12px;color:var(--text3)">${dt}</td>
+      <td>
+        <div class="action-btns">
+          <button class="act-btn" onclick="openPanel('${l.id}')">View</button>
+          ${waPhone ? `<button class="act-btn wa" onclick="window.open('https://wa.me/${waPhone}?text=${waMsg}','_blank')">💬 WA</button>` : ''}
+          <button class="act-btn em" onclick="window.open('mailto:${l.email}','_blank')">✉</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterLeads(status, btn) {
+  currentFilter = status;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeads();
+}
+
+function searchLeads(q) {
+  currentSearch = q;
+  renderLeads();
+}
+
+function openPanel(id) {
+  api(`/api/admin/leads/${id}`).then(lead => {
+    document.getElementById('dpTitle').textContent = lead.name;
+    document.getElementById('dpBody').innerHTML = buildDetailHTML(lead);
+    document.getElementById('detailPanel').classList.add('open');
+  });
+}
+
+function closePanel() {
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+function buildDetailHTML(l) {
+  const waPhone = l.phone?.replace(/\D/g,'');
+  const waMsg = encodeURIComponent(`Hi ${l.name}, this is Ankit from Musk-IT!`);
+  const activities = (l.activities || []).slice(0,10);
+
+  return `
+    <div class="dp-section">
+      <div class="dp-sec-title">Contact</div>
+      <div class="dp-row"><span class="dp-label">Name</span><span class="dp-val">${l.name}</span></div>
+      <div class="dp-row"><span class="dp-label">Email</span><span class="dp-val">${l.email}</span></div>
+      <div class="dp-row"><span class="dp-label">Phone</span><span class="dp-val">${l.phone||'—'}</span></div>
+      <div class="dp-row"><span class="dp-label">Organisation</span><span class="dp-val">${l.organisation||'—'}</span></div>
+      <div class="dp-row"><span class="dp-label">Plan</span><span class="dp-val">${l.plan||'—'}</span></div>
+      <div class="dp-row"><span class="dp-label">Team size</span><span class="dp-val">${l.team_size||'—'}</span></div>
+      <div class="dp-row"><span class="dp-label">Source</span><span class="dp-val">${l.source||'—'}</span></div>
+      ${l.message ? `<div class="dp-row" style="flex-direction:column;gap:4px"><span class="dp-label">Message</span><span class="dp-val" style="text-align:left;margin-top:4px">${l.message}</span></div>` : ''}
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-sec-title">Quick Actions</div>
+      ${waPhone ? `<button class="dp-btn dp-btn-wa" onclick="window.open('https://wa.me/${waPhone}?text=${waMsg}','_blank')">💬 WhatsApp ${l.name.split(' ')[0]}</button>` : ''}
+      <button class="dp-btn dp-btn-acc" onclick="window.open('mailto:${l.email}','_blank')">✉ Email ${l.name.split(' ')[0]}</button>
+      <a href="tel:${l.phone}" class="dp-btn dp-btn-ghost" style="display:flex;align-items:center;justify-content:center;gap:6px">📞 Call ${l.phone||'—'}</a>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-sec-title">Pipeline Status</div>
+      <select class="status-select" id="dpStatus" onchange="updateStatus('${l.id}', this.value)">
+        <option value="new" ${l.status==='new'?'selected':''}>New</option>
+        <option value="contacted" ${l.status==='contacted'?'selected':''}>Contacted</option>
+        <option value="quoted" ${l.status==='quoted'?'selected':''}>Quoted</option>
+        <option value="demo_booked" ${l.status==='demo_booked'?'selected':''}>Demo Booked</option>
+        <option value="negotiating" ${l.status==='negotiating'?'selected':''}>Negotiating</option>
+        <option value="won" ${l.status==='won'?'selected':''}>Won ✓</option>
+        <option value="lost" ${l.status==='lost'?'selected':''}>Lost ✗</option>
+      </select>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-sec-title">Notes (private)</div>
+      <textarea class="notes-area" id="dpNotes" placeholder="Add internal notes...">${l.notes||''}</textarea>
+      <button class="dp-btn dp-btn-teal" onclick="saveNotes('${l.id}')">Save Notes</button>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-sec-title">Activity Log</div>
+      <div class="activity-list">
+        ${activities.length ? activities.map(a => `
+          <div class="act-item">
+            <div class="act-type">${a.type}</div>
+            <div class="act-desc">${a.description}</div>
+            <div class="act-time">${new Date(a.created_at).toLocaleString('en-IN')}</div>
+          </div>`).join('') : '<div style="font-size:12px;color:var(--text3)">No activity yet</div>'}
+      </div>
+    </div>
+  `;
+}
+
+function updateStatus(leadId, status) {
+  api(`/api/admin/leads/${leadId}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  }).then(() => { loadLeads(); loadStats(); });
+}
+
+function saveNotes(leadId) {
+  const notes = document.getElementById('dpNotes').value;
+  api(`/api/admin/leads/${leadId}/notes`, {
+    method: 'PATCH',
+    body: JSON.stringify({ notes }),
+  }).then(() => {
+    const el = document.getElementById('dpNotes');
+    el.style.borderColor = 'var(--teal)';
+    setTimeout(() => el.style.borderColor = '', 1500);
+  });
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page-view').forEach(p => p.classList.remove('show'));
+  document.getElementById(`page-${name}`).classList.add('show');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  if (name === 'bookings') loadBookings();
+  if (name === 'payments') loadPayments();
+}
+
+function loadBookings() {
+  api('/api/admin/bookings').then(bookings => {
+    if (!bookings.length) {
+      document.getElementById('bookingsContent').innerHTML = '<div class="empty">No bookings yet</div>';
+      return;
+    }
+    document.getElementById('bookingsContent').innerHTML = `
+      <table class="leads-table">
+        <thead><tr><th>Person</th><th>Slot</th><th>Plan</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${bookings.map(b => {
+          const waPhone = b.phone?.replace(/\D/g,'');
+          const conf = encodeURIComponent(`Hi ${b.name}, your Musk-IT demo on ${b.slot_date} at ${b.slot_time} IST is confirmed! I'll send the Google Meet link shortly.`);
+          return `<tr>
+            <td><div class="lead-name">${b.name}</div><div class="lead-org">${b.organisation||b.email}</div></td>
+            <td style="font-size:13px;color:var(--text)">${b.slot_date} ${b.slot_time} IST<br><span style="font-size:11px;color:var(--text3)">${b.duration_min} min</span></td>
+            <td><span style="font-size:12px;color:var(--text2)">${b.plan_interest||'—'}</span></td>
+            <td><span class="status s-${b.status}">${b.status}</span></td>
+            <td>
+              ${waPhone ? `<button class="act-btn wa" onclick="window.open('https://wa.me/${waPhone}?text=${conf}','_blank')">💬 Confirm</button>` : ''}
+              <button class="act-btn em" onclick="window.open('mailto:${b.email}','_blank')">✉</button>
+            </td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+  });
+}
+
+function loadPayments() {
+  api('/api/admin/payments').then(payments => {
+    if (!payments.length) {
+      document.getElementById('paymentsContent').innerHTML = '<div class="empty">No payments yet</div>';
+      return;
+    }
+    document.getElementById('paymentsContent').innerHTML = `
+      <table class="leads-table">
+        <thead><tr><th>Customer</th><th>Plan</th><th>Amount</th><th>Invoice</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>${payments.map(p => `<tr>
+          <td><div class="lead-name">${p.lead_name||'—'}</div><div class="lead-org">${p.organisation||'—'}</div></td>
+          <td style="font-size:12px">${p.plan||'—'} · ${p.billing||'—'}</td>
+          <td><span style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--teal)">₹${p.total_amount?.toLocaleString('en-IN')}</span></td>
+          <td style="font-size:12px;color:var(--text2)">${p.invoice_number||'—'}</td>
+          <td><span class="status ${p.status==='paid'?'s-won':'s-new'}">${p.status}</span></td>
+          <td style="font-size:12px;color:var(--text3)">${p.created_at?new Date(p.created_at).toLocaleDateString('en-IN'):'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+  });
+}
+
+function startClock() {
+  const el = document.getElementById('topbarTime');
+  const update = () => {
+    el.textContent = new Date().toLocaleString('en-IN', { timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' }) + ' IST';
+  };
+  update(); setInterval(update, 60000);
+}
+
+// Auto-login if token exists
+if (adminToken) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadAll();
+  startClock();
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePanel();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank You | Musk-IT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#04070f;--surface:#101828;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--accent:#3B8BF7;--teal:#1FD9A4;--amber:#F5A623;--text:#F0F4FF;--text2:#8B97B4;--text3:#505D78;--font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.6;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center}
+    .wrap{max-width:560px;width:100%}
+    .logo{font-family:var(--font-head);font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:48px;display:block}
+    .logo span:last-child{color:var(--accent)}
+    .icon{font-size:56px;margin-bottom:20px;animation:pop .5s cubic-bezier(0.34,1.56,0.64,1) both}
+    @keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+    h1{font-family:var(--font-head);font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-1.2px;margin-bottom:12px;color:var(--teal)}
+    .sub{font-size:16px;color:var(--text2);line-height:1.7;margin-bottom:32px;max-width:440px;margin-left:auto;margin-right:auto}
+    .card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:22px;margin-bottom:24px;text-align:left}
+    .next-steps{list-style:none;display:flex;flex-direction:column;gap:10px}
+    .next-steps li{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--text2);line-height:1.55}
+    .step-num{min-width:24px;height:24px;border-radius:50%;background:rgba(31,217,164,0.12);border:1px solid rgba(31,217,164,0.25);color:var(--teal);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+    .btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+    .btn{padding:11px 22px;border-radius:8px;font-family:var(--font-body);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity .2s,transform .15s;text-decoration:none}
+    .btn:hover{opacity:.88;transform:translateY(-1px)}
+    .btn-wa{background:#25D366;color:#fff}
+    .btn-acc{background:var(--accent);color:#fff}
+    .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+    .btn-ghost:hover{color:var(--text)}
+    .note{font-size:12px;color:var(--text3);line-height:1.65}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="/" class="logo"><span>Musk</span><span>-IT</span></a>
+    <div class="icon" id="icon">✓</div>
+    <h1 id="headline">You're all set!</h1>
+    <p class="sub" id="subline">Ankit has been notified and will be in touch within 4 business hours.</p>
+
+    <div class="card">
+      <div style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px">What happens next</div>
+      <ul class="next-steps" id="nextSteps">
+        <li><span class="step-num">1</span>Ankit reviews your enquiry and sends a tailored response.</li>
+        <li><span class="step-num">2</span>A product demo is scheduled at your convenience.</li>
+        <li><span class="step-num">3</span>License agreement and onboarding are completed.</li>
+        <li><span class="step-num">4</span>Your team is live on Musk-IT within 2–5 days.</li>
+      </ul>
+    </div>
+
+    <div class="btn-row">
+      <a href="https://wa.me/917047859422" target="_blank" class="btn btn-wa">💬 WhatsApp Ankit</a>
+      <a href="/book.html" class="btn btn-acc">📅 Book Demo</a>
+      <a href="https://muskit.in" class="btn btn-ghost">← Back to muskit.in</a>
+    </div>
+
+    <p class="note">
+      Questions? Email <a href="mailto:ankitbiswassharma@muskit.in" style="color:var(--accent)">ankitbiswassharma@muskit.in</a>
+      or call <a href="tel:+917047859422" style="color:var(--accent)">+91 70478 59422</a>
+    </p>
+  </div>
+
+  <script>
+    // Adapt headline based on URL param
+    const p = new URLSearchParams(location.search);
+    const type = p.get('type') || 'lead';
+    const map = {
+      lead:    { icon:'✓', h:'Enquiry received!', s:'Ankit will respond within 4 hours on WhatsApp or email.' },
+      booking: { icon:'📅', h:'Demo booked!', s:'Your slot is confirmed. A Google Meet link will be sent 30 minutes before.' },
+      payment: { icon:'💰', h:'Payment confirmed!', s:'Your Musk-IT license is active. Onboarding starts within 2 hours.' },
+      quote:   { icon:'📄', h:'Quote sent!', s:'Check your email. Ankit will follow up within 4 hours.' },
+    };
+    const m = map[type] || map.lead;
+    document.getElementById('icon').textContent = m.icon;
+    document.getElementById('headline').textContent = m.h;
+    document.getElementById('subline').textContent = m.s;
+    if (type === 'payment') {
+      document.getElementById('nextSteps').innerHTML = `
+        <li><span class="step-num">1</span>GST invoice sent to your email within 24 hours.</li>
+        <li><span class="step-num">2</span>Ankit contacts you to begin onboarding.</li>
+        <li><span class="step-num">3</span>Your team accounts are created within 24 hours.</li>
+        <li><span class="step-num">4</span>Training session scheduled at your convenience.</li>`;
+    }
+  </script>
+</body>
+</html>

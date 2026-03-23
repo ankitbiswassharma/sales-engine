@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pay Now | Musk-IT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#04070f;--bg2:#080d1a;--bg3:#0c1221;--surface:#101828;--surface2:#162033;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--accent:#3B8BF7;--teal:#1FD9A4;--amber:#F5A623;--text:#F0F4FF;--text2:#8B97B4;--text3:#505D78;--font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.6;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(16px);background:rgba(4,7,15,0.9);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center}
+    .nav-inner{max-width:960px;width:100%;margin:auto;display:flex;align-items:center;justify-content:space-between}
+    .logo{font-family:var(--font-head);font-size:20px;font-weight:800;letter-spacing:-.5px}.logo span:last-child{color:var(--accent)}
+    .nav-links{display:flex;align-items:center;gap:12px}.nav-links a{font-size:13px;color:var(--text2)}.nav-links a:hover{color:var(--text)}
+    .btn-nav{background:var(--accent);color:#fff;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:500}
+    .page{padding:100px 2rem 80px;max-width:860px;margin:0 auto}
+    .page-eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:10px}
+    .page-title{font-family:var(--font-head);font-size:clamp(26px,4vw,42px);font-weight:800;letter-spacing:-1.2px;color:var(--text);margin-bottom:12px;line-height:1.1}
+    .page-sub{font-size:15px;color:var(--text2);margin-bottom:36px;line-height:1.7}
+    .pay-grid{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start}
+    /* Order form */
+    .card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:26px}
+    .card-title{font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+    .card-title::before{content:'';display:block;width:3px;height:14px;background:var(--teal);border-radius:2px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+    .form-row.single{grid-template-columns:1fr}
+    .field{display:flex;flex-direction:column;gap:5px}
+    .field label{font-size:12px;color:var(--text2);font-weight:500}
+    .fi,.fs{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;width:100%;transition:border-color .2s,box-shadow .2s}
+    .fi:focus,.fs:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(31,217,164,0.08)}
+    .fi::placeholder{color:var(--text3)}
+    .fs{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23505D78' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+    .fs option{background:#0c1221}
+    /* Plan selector */
+    .plan-row{display:flex;gap:8px;margin-bottom:18px}
+    .plan-tab{flex:1;padding:9px;border-radius:8px;border:1px solid var(--border2);background:none;font-family:var(--font-body);font-size:12px;color:var(--text2);cursor:pointer;text-align:center;transition:all .2s}
+    .plan-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(59,139,247,0.08)}
+    .billing-row{display:flex;gap:8px;margin-bottom:20px}
+    .bill-tab{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border2);background:none;font-family:var(--font-body);font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;text-align:center}
+    .bill-tab.active{border-color:var(--teal);color:var(--teal);background:rgba(31,217,164,0.06)}
+    /* Amount display */
+    .amount-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:20px}
+    .amt-rows{display:flex;flex-direction:column;gap:6px}
+    .amt-row{display:flex;justify-content:space-between;font-size:13px}
+    .amt-label{color:var(--text2)}.amt-val{color:var(--text);font-weight:500}
+    .amt-total{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--teal)}
+    .amt-note{font-size:11px;color:var(--text3);margin-top:10px;line-height:1.6}
+    /* Pay method tabs */
+    .pay-methods{display:flex;gap:8px;margin-bottom:20px}
+    .pm-tab{flex:1;padding:10px 8px;border-radius:9px;border:1px solid var(--border2);background:none;font-family:var(--font-body);font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;text-align:center;font-weight:500}
+    .pm-tab:hover{border-color:rgba(255,255,255,0.2);color:var(--text)}
+    .pm-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(59,139,247,0.08)}
+    /* Payment panels */
+    .pay-panel{display:none}.pay-panel.show{display:block}
+    /* UPI */
+    .upi-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px;text-align:center}
+    .upi-id{font-family:monospace;font-size:16px;font-weight:600;color:var(--teal);background:rgba(31,217,164,0.08);border:1px solid rgba(31,217,164,0.2);padding:8px 14px;border-radius:6px;display:inline-block;margin:10px 0}
+    /* Bank */
+    .bank-table{width:100%;border-collapse:collapse;margin-bottom:16px}
+    .bank-table tr{border-bottom:1px solid var(--border)}
+    .bank-table tr:last-child{border:none}
+    .bank-table td{padding:9px 4px;font-size:13px}
+    .bank-table td:first-child{color:var(--text3);width:110px}
+    .bank-table td:last-child{color:var(--text);font-weight:500}
+    /* Buttons */
+    .btn-pay{width:100%;background:var(--teal);color:#04070f;border:none;border-radius:9px;padding:14px;font-family:var(--font-head);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s,transform .15s;margin-top:4px}
+    .btn-pay:hover:not(:disabled){opacity:.88;transform:translateY(-1px)}
+    .btn-pay:disabled{opacity:.4;cursor:not-allowed}
+    .btn-rzp{background:var(--accent)}
+    .btn-wa-confirm{background:#25D366;color:#fff;width:100%;border:none;border-radius:9px;padding:12px;font-family:var(--font-head);font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .2s}
+    .btn-wa-confirm:hover{opacity:.88}
+    /* Order summary sidebar */
+    .summary-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:22px;position:sticky;top:80px}
+    .summary-title{font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
+    .sum-rows{display:flex;flex-direction:column;gap:0}
+    .sum-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+    .sum-row:last-child{border:none}
+    .sum-label{color:var(--text2)}.sum-val{color:var(--text);font-weight:500}
+    .sum-total{font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--teal);margin-top:14px;padding-top:14px;border-top:1px solid var(--border2)}
+    /* Error */
+    .err{display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:12px 16px;font-size:14px;color:#FDA4AF;margin-bottom:14px}
+    .err.show{display:block}
+    /* Success */
+    .success{display:none;background:rgba(31,217,164,0.06);border:1px solid rgba(31,217,164,0.2);border-radius:14px;padding:32px;text-align:center}
+    .success.show{display:block}
+    .success h2{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--teal);margin-bottom:8px}
+    .success p{font-size:14px;color:var(--text2);margin-bottom:18px;line-height:1.65}
+    footer{border-top:1px solid var(--border);padding:32px 2rem;text-align:center}
+    .footer-links{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+    .footer-links a{font-size:13px;color:var(--text3)}.footer-links a:hover{color:var(--text2)}
+    .footer-copy{font-size:12px;color:var(--text3)}
+    @media(max-width:720px){.pay-grid{grid-template-columns:1fr}.summary-card{position:static}}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo"><span>Musk</span><span>-IT</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a><a href="/quote.html">Get Quote</a><a href="/book.html">Book Demo</a>
+      <a href="https://wa.me/917047859422" target="_blank" class="btn-nav">💬 WhatsApp</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-eyebrow">Secure Checkout</div>
+  <h1 class="page-title">Complete your purchase</h1>
+  <p class="page-sub">Pay securely via Razorpay (cards, UPI, net banking), direct UPI, or bank transfer. GST invoice issued within 24 hours.</p>
+
+  <!-- Success -->
+  <div class="success" id="successBox">
+    <h2>✓ Payment confirmed!</h2>
+    <p id="successMsg">Your Musk-IT license is now active. Ankit will reach out within 2 hours to begin onboarding. Check your email for the invoice.</p>
+    <a href="https://wa.me/917047859422" target="_blank" style="background:#25D366;color:#fff;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px">💬 Message Ankit</a>
+  </div>
+
+  <div class="pay-grid" id="payGrid">
+    <!-- Left: Order form -->
+    <div>
+      <div class="card">
+        <div class="card-title">Order details</div>
+
+        <div class="err" id="errMsg"></div>
+
+        <!-- Plan -->
+        <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px">Plan</div>
+        <div class="plan-row">
+          <button class="plan-tab active" onclick="setPlan('professional', this)">Professional</button>
+          <button class="plan-tab" onclick="setPlan('enterprise', this)" title="Contact sales for custom pricing">Enterprise AI</button>
+          <button class="plan-tab" onclick="setPlan('source', this)" title="Contact sales">Source License</button>
+        </div>
+
+        <!-- Billing -->
+        <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px" id="billingLabel">Billing cycle</div>
+        <div class="billing-row" id="billingRow">
+          <button class="bill-tab active" onclick="setBilling('monthly', this)">Monthly</button>
+          <button class="bill-tab" onclick="setBilling('annual', this)">Annual <span style="font-size:10px;color:var(--teal)">(–20%)</span></button>
+        </div>
+
+        <!-- Users -->
+        <div class="form-row" id="usersRow">
+          <div class="field">
+            <label>Number of users *</label>
+            <input class="fi" id="pUsers" type="number" min="1" max="500" value="5" oninput="recalc()">
+          </div>
+          <div class="field" style="justify-content:flex-end">
+            <label style="opacity:0">.</label>
+            <div class="amount-card" style="margin:0;flex:1">
+              <div class="amt-rows">
+                <div class="amt-row"><span class="amt-label">Subtotal</span><span class="amt-val" id="dispBase">—</span></div>
+                <div class="amt-row"><span class="amt-label">GST 18%</span><span class="amt-val" id="dispGst">—</span></div>
+                <div class="amt-row"><span class="amt-label">Total</span><span class="amt-total" id="dispTotal">—</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact info -->
+        <div class="form-row">
+          <div class="field"><label>Full Name *</label><input class="fi" id="pName" placeholder="Your name"></div>
+          <div class="field"><label>Organisation *</label><input class="fi" id="pOrg" placeholder="Company"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Work Email *</label><input class="fi" id="pEmail" type="email" placeholder="you@company.com"></div>
+          <div class="field"><label>Phone *</label><input class="fi" id="pPhone" placeholder="+91 XXXXX XXXXX"></div>
+        </div>
+        <div class="form-row single">
+          <div class="field"><label>GST Number (optional)</label><input class="fi" id="pGst" placeholder="22AAAAA0000A1Z5"></div>
+        </div>
+
+        <!-- Custom plan CTA -->
+        <div id="customPlanMsg" style="display:none;background:rgba(31,217,164,0.05);border:1px solid rgba(31,217,164,0.18);border-radius:10px;padding:18px;text-align:center;margin-bottom:16px">
+          <div style="font-size:14px;font-weight:600;color:var(--teal);margin-bottom:6px">Custom pricing required</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:14px">Enterprise AI and Source License are priced per your requirements. Contact Ankit for a proposal.</div>
+          <a href="https://wa.me/917047859422?text=Hi%20Ankit%2C%20I%27d%20like%20a%20quote%20for%20the%20Enterprise%20AI%20plan." target="_blank" style="background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px">💬 WhatsApp Ankit</a>
+        </div>
+
+        <!-- Payment method tabs -->
+        <div id="payMethodSection">
+          <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:10px">Payment method</div>
+          <div class="pay-methods">
+            <button class="pm-tab active" onclick="setMethod('razorpay', this)">💳 Razorpay</button>
+            <button class="pm-tab" onclick="setMethod('upi', this)">📱 UPI</button>
+            <button class="pm-tab" onclick="setMethod('bank', this)">🏦 Bank Transfer</button>
+          </div>
+
+          <!-- Razorpay panel -->
+          <div class="pay-panel show" id="panel-razorpay">
+            <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">Cards, UPI, net banking, wallets — all processed securely via Razorpay.</p>
+            <button class="btn-pay btn-rzp" onclick="payRazorpay()" id="rzpBtn">
+              🔒 Pay ₹<span id="rzpAmt">—</span> via Razorpay
+            </button>
+          </div>
+
+          <!-- UPI panel -->
+          <div class="pay-panel" id="panel-upi">
+            <div class="upi-box">
+              <div style="font-size:12px;color:var(--text3);margin-bottom:4px">Send to UPI ID</div>
+              <div class="upi-id" id="upiId">Loading...</div>
+              <div style="font-size:11px;color:var(--text3)">Name: <span id="upiName">Musk-IT</span></div>
+            </div>
+            <p style="font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:14px">After payment, send a screenshot to Ankit on WhatsApp with your order details for instant confirmation.</p>
+            <button class="btn-wa-confirm" onclick="confirmUPI()">
+              💬 Done — Send Screenshot to Ankit
+            </button>
+          </div>
+
+          <!-- Bank transfer panel -->
+          <div class="pay-panel" id="panel-bank">
+            <table class="bank-table" id="bankTable">
+              <tr><td>Bank</td><td id="bkBank">Loading...</td></tr>
+              <tr><td>Account No.</td><td id="bkAcc">Loading...</td></tr>
+              <tr><td>IFSC</td><td id="bkIfsc">Loading...</td></tr>
+              <tr><td>Branch</td><td id="bkBranch">Loading...</td></tr>
+              <tr><td>Name</td><td id="bkName">Loading...</td></tr>
+            </table>
+            <p style="font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:14px">After transfer, send the UTR/transaction reference to Ankit on WhatsApp for same-day confirmation.</p>
+            <button class="btn-wa-confirm" onclick="confirmBank()">
+              💬 Share Transfer Reference with Ankit
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right: Summary -->
+    <div>
+      <div class="summary-card">
+        <div class="summary-title">Order Summary</div>
+        <div class="sum-rows">
+          <div class="sum-row"><span class="sum-label">Plan</span><span class="sum-val" id="sPlan">Professional</span></div>
+          <div class="sum-row"><span class="sum-label">Billing</span><span class="sum-val" id="sBilling">Monthly</span></div>
+          <div class="sum-row"><span class="sum-label">Users</span><span class="sum-val" id="sUsers">5</span></div>
+          <div class="sum-row"><span class="sum-label">Subtotal</span><span class="sum-val" id="sBase">₹4,995</span></div>
+          <div class="sum-row"><span class="sum-label">GST (18%)</span><span class="sum-val" id="sGst">₹899.10</span></div>
+        </div>
+        <div class="sum-total">₹<span id="sTotal">5,894</span></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px">Incl. GST · Invoice within 24h</div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase">Need help?</div>
+          <a href="https://wa.me/917047859422" target="_blank" style="display:flex;align-items:center;gap:8px;font-size:13px;color:#25D366;padding:8px 0;border-bottom:1px solid var(--border)">
+            💬 WhatsApp Ankit
+          </a>
+          <a href="mailto:ankitbiswassharma@muskit.in" style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);padding:8px 0">
+            ✉ ankitbiswassharma@muskit.in
+          </a>
+        </div>
+        <div style="margin-top:14px;font-size:11px;color:var(--text3);line-height:1.65">
+          🔒 Secure checkout · SSL encrypted<br>
+          📄 GST invoice issued within 24h<br>
+          ↩ Contact Ankit for refund queries
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="/">Home</a><a href="/quote.html">Get Quote</a><a href="/book.html">Book Demo</a>
+    <a href="mailto:ankitbiswassharma@muskit.in">Email</a>
+  </div>
+  <div class="footer-copy">© 2026 Musk-IT · All Rights Reserved</div>
+</footer>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+let cfg = {};
+let selectedPlan = 'professional';
+let selectedBilling = 'monthly';
+let selectedMethod = 'razorpay';
+let currentAmount = 0;
+
+// Load config
+fetch('/api/config').then(r => r.json()).then(data => {
+  cfg = data;
+  document.getElementById('upiId').textContent = data.upi?.id || 'Not configured';
+  document.getElementById('upiName').textContent = data.upi?.name || 'Musk-IT';
+  document.getElementById('bkBank').textContent = data.bank?.bank || '—';
+  document.getElementById('bkAcc').textContent  = data.bank?.account || '—';
+  document.getElementById('bkIfsc').textContent = data.bank?.ifsc || '—';
+  document.getElementById('bkBranch').textContent = data.bank?.branch || '—';
+  document.getElementById('bkName').textContent  = data.bank?.name || 'Musk-IT';
+  recalc();
+
+  // Pre-fill from quote page
+  const q = sessionStorage.getItem('muskit_quote');
+  if (q) {
+    const qd = JSON.parse(q);
+    if (qd.plan)         setPlan(qd.plan);
+    if (qd.billing)      setBilling(qd.billing);
+    if (qd.users)        { document.getElementById('pUsers').value = qd.users; recalc(); }
+    if (qd.name)         document.getElementById('pName').value = qd.name;
+    if (qd.organisation) document.getElementById('pOrg').value = qd.organisation;
+    if (qd.email)        document.getElementById('pEmail').value = qd.email;
+    if (qd.phone)        document.getElementById('pPhone').value = qd.phone;
+  }
+});
+
+function setPlan(plan, btn) {
+  selectedPlan = plan;
+  document.querySelectorAll('.plan-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else document.querySelectorAll('.plan-tab').forEach((b,i) => {
+    if (['professional','enterprise','source'][i] === plan) b.classList.add('active');
+  });
+
+  const isCustom = plan !== 'professional';
+  document.getElementById('customPlanMsg').style.display = isCustom ? 'block' : 'none';
+  document.getElementById('payMethodSection').style.display = isCustom ? 'none' : 'block';
+  document.getElementById('usersRow').style.display = isCustom ? 'none' : 'grid';
+  document.getElementById('billingRow').style.display = isCustom ? 'none' : 'flex';
+  document.getElementById('billingLabel').style.display = isCustom ? 'none' : 'block';
+  document.getElementById('sPlan').textContent = { professional:'Professional', enterprise:'Enterprise AI', source:'Source License' }[plan];
+  recalc();
+}
+
+function setBilling(b, btn) {
+  selectedBilling = b;
+  document.querySelectorAll('.bill-tab').forEach(x => x.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('sBilling').textContent = b === 'annual' ? 'Annual' : 'Monthly';
+  recalc();
+}
+
+function setMethod(m, btn) {
+  selectedMethod = m;
+  document.querySelectorAll('.pm-tab').forEach(x => x.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('show'));
+  document.getElementById(`panel-${m}`).classList.add('show');
+}
+
+function recalc() {
+  const users = parseInt(document.getElementById('pUsers')?.value) || 5;
+  const rate = selectedBilling === 'annual' ? 799 : 999;
+  let base = rate * users;
+  if (selectedBilling === 'annual') base *= 12;
+  const gst = Math.round(base * 0.18 * 100) / 100;
+  const total = Math.round((base + gst) * 100) / 100;
+  currentAmount = total;
+
+  const fmt = n => '₹' + n.toLocaleString('en-IN');
+  document.getElementById('dispBase').textContent = fmt(base);
+  document.getElementById('dispGst').textContent  = fmt(gst);
+  document.getElementById('dispTotal').textContent = fmt(total);
+  document.getElementById('sBase').textContent    = fmt(base);
+  document.getElementById('sGst').textContent     = fmt(gst);
+  document.getElementById('sTotal').textContent   = total.toLocaleString('en-IN');
+  document.getElementById('sUsers').textContent   = users + ' users';
+  document.getElementById('rzpAmt').textContent   = total.toLocaleString('en-IN');
+}
+
+async function payRazorpay() {
+  const name  = document.getElementById('pName').value.trim();
+  const email = document.getElementById('pEmail').value.trim();
+  const phone = document.getElementById('pPhone').value.trim();
+  const org   = document.getElementById('pOrg').value.trim();
+  const users = document.getElementById('pUsers').value;
+  if (!name || !email || !phone || !org) { showErr('Please fill in all required fields.'); return; }
+
+  const btn = document.getElementById('rzpBtn');
+  btn.disabled = true; btn.textContent = 'Creating order...';
+
+  try {
+    const res = await fetch('/api/pay/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: selectedPlan, billing: selectedBilling, users, name, email, phone, organisation: org }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Order creation failed');
+
+    if (data.mode === 'manual') {
+      // Razorpay not configured — show bank/UPI
+      showErr('Online payment not configured. Please use UPI or Bank Transfer.');
+      setMethod('upi', document.querySelector('.pm-tab:nth-child(2)'));
+      btn.disabled = false; btn.textContent = '🔒 Pay via Razorpay';
+      return;
+    }
+
+    const options = {
+      key: data.key,
+      amount: data.amount,
+      currency: data.currency,
+      order_id: data.order_id,
+      name: 'Musk-IT',
+      description: `${selectedPlan} plan — ${selectedBilling} billing`,
+      prefill: data.prefill,
+      theme: { color: '#3B8BF7' },
+      handler: async function(resp) {
+        // Verify
+        const vRes = await fetch('/api/pay/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(resp),
+        });
+        const vData = await vRes.json();
+        if (vData.success) {
+          document.getElementById('payGrid').style.display = 'none';
+          document.getElementById('successMsg').textContent =
+            `Invoice ${vData.invoice} has been sent to ${email}. Ankit will contact you within 2 hours.`;
+          document.getElementById('successBox').classList.add('show');
+        } else {
+          showErr('Payment verification failed. Contact Ankit immediately with your payment ID: ' + resp.razorpay_payment_id);
+        }
+      },
+      modal: { ondismiss: () => { btn.disabled = false; btn.textContent = '🔒 Pay via Razorpay'; } },
+    };
+    new Razorpay(options).open();
+  } catch (err) {
+    showErr(err.message);
+    btn.disabled = false; btn.textContent = '🔒 Pay via Razorpay';
+  }
+}
+
+function confirmUPI() {
+  const name  = document.getElementById('pName').value.trim();
+  const email = document.getElementById('pEmail').value.trim();
+  const users = document.getElementById('pUsers').value;
+  const msg = `Hi Ankit, I've made a UPI payment for Musk-IT.\n\nPlan: ${selectedPlan}\nBilling: ${selectedBilling}\nUsers: ${users}\nAmount: ₹${currentAmount.toLocaleString('en-IN')}\nName: ${name}\nEmail: ${email}`;
+  window.open(`https://wa.me/917047859422?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function confirmBank() {
+  const name  = document.getElementById('pName').value.trim();
+  const users = document.getElementById('pUsers').value;
+  const msg = `Hi Ankit, I've initiated a bank transfer for Musk-IT.\n\nPlan: ${selectedPlan}\nBilling: ${selectedBilling}\nUsers: ${users}\nAmount: ₹${currentAmount.toLocaleString('en-IN')}\nName: ${name}\n\n[Please share UTR/transaction reference here]`;
+  window.open(`https://wa.me/917047859422?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function showErr(msg) {
+  const el = document.getElementById('errMsg');
+  el.textContent = '⚠ ' + msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+document.getElementById('pUsers').addEventListener('input', recalc);
+recalc();
+</script>
+</body>
+</html>
