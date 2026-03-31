@@ -9,6 +9,11 @@ if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
 
 const db = new Database(cfg.db.path);
 
+function toSqliteDateTime(value) {
+  const date = value instanceof Date ? value : new Date(value);
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+}
+
 // Enable WAL mode for better concurrent performance
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
@@ -134,12 +139,35 @@ db.exec(`
     created_by  TEXT DEFAULT 'system'
   );
 
+  CREATE TABLE IF NOT EXISTS admin_otp_requests (
+    id           TEXT PRIMARY KEY,
+    email        TEXT NOT NULL,
+    otp_hash     TEXT NOT NULL,
+    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at   DATETIME NOT NULL,
+    used_at      DATETIME,
+    attempt_count INTEGER DEFAULT 0,
+    requested_ip TEXT,
+    user_agent   TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS admin_sessions (
+    token_hash   TEXT PRIMARY KEY,
+    email        TEXT NOT NULL,
+    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at   DATETIME NOT NULL,
+    revoked_at   DATETIME,
+    last_seen_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
   -- Indexes for common queries
   CREATE INDEX IF NOT EXISTS idx_leads_status    ON leads(status);
   CREATE INDEX IF NOT EXISTS idx_leads_email     ON leads(email);
   CREATE INDEX IF NOT EXISTS idx_leads_created   ON leads(created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_bookings_date   ON bookings(slot_date);
   CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);
+  CREATE INDEX IF NOT EXISTS idx_admin_otp_email_created ON admin_otp_requests(email, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_admin_sessions_expires ON admin_sessions(expires_at);
 `);
 
 // ── Helper Methods ─────────────────────────────────────────────────────────────
@@ -310,6 +338,74 @@ const helpers = {
       FROM payments p LEFT JOIN leads l ON p.lead_id = l.id
       ORDER BY p.created_at DESC
     `).all();
+  },
+
+  // Admin auth
+  cleanupAdminAuth() {
+    db.prepare("DELETE FROM admin_otp_requests WHERE expires_at <= CURRENT_TIMESTAMP OR used_at IS NOT NULL").run();
+    db.prepare("DELETE FROM admin_sessions WHERE expires_at <= CURRENT_TIMESTAMP OR revoked_at IS NOT NULL").run();
+  },
+
+  createAdminOtpRequest(data) {
+    db.prepare(`
+      INSERT INTO admin_otp_requests (id, email, otp_hash, expires_at, requested_ip, user_agent)
+      VALUES (@id, @email, @otp_hash, @expires_at, @requested_ip, @user_agent)
+    `).run({
+      id: data.id,
+      email: data.email,
+      otp_hash: data.otp_hash,
+      expires_at: toSqliteDateTime(data.expires_at),
+      requested_ip: data.requested_ip || null,
+      user_agent: data.user_agent || null,
+    });
+    return data.id;
+  },
+
+  getAdminOtpRequest(id) {
+    return db.prepare('SELECT * FROM admin_otp_requests WHERE id = ?').get(id);
+  },
+
+  getRecentAdminOtpRequest(email, since) {
+    return db.prepare(`
+      SELECT * FROM admin_otp_requests
+      WHERE email = ? AND created_at >= ?
+      ORDER BY created_at DESC
+      LIMIT 1
+    `).get(email, toSqliteDateTime(since));
+  },
+
+  incrementAdminOtpAttempt(id) {
+    db.prepare('UPDATE admin_otp_requests SET attempt_count = attempt_count + 1 WHERE id = ?').run(id);
+  },
+
+  consumeAdminOtpRequest(id) {
+    db.prepare('UPDATE admin_otp_requests SET used_at = CURRENT_TIMESTAMP WHERE id = ?').run(id);
+  },
+
+  deleteAdminOtpRequest(id) {
+    db.prepare('DELETE FROM admin_otp_requests WHERE id = ?').run(id);
+  },
+
+  createAdminSession(data) {
+    db.prepare(`
+      INSERT INTO admin_sessions (token_hash, email, expires_at)
+      VALUES (@token_hash, @email, @expires_at)
+    `).run({
+      token_hash: data.token_hash,
+      email: data.email,
+      expires_at: toSqliteDateTime(data.expires_at),
+    });
+  },
+
+  getAdminSession(tokenHash) {
+    return db.prepare(`
+      SELECT * FROM admin_sessions
+      WHERE token_hash = ? AND revoked_at IS NULL AND expires_at > CURRENT_TIMESTAMP
+    `).get(tokenHash);
+  },
+
+  revokeAdminSession(tokenHash) {
+    db.prepare('UPDATE admin_sessions SET revoked_at = CURRENT_TIMESTAMP WHERE token_hash = ?').run(tokenHash);
   },
 
   // Activities

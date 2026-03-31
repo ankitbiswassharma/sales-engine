@@ -6,8 +6,13 @@ module.exports = {
   baseUrl: process.env.BASE_URL || 'http://localhost:3000',
 
   admin: {
-    password: process.env.ADMIN_PASSWORD || 'muskit2026',
+    email: (process.env.ADMIN_EMAIL || process.env.SALES_EMAIL || 'ankitbiswassharma@muskit.in').toLowerCase(),
     sessionSecret: process.env.ADMIN_SESSION_SECRET || 'dev-secret-change-in-prod',
+    otpDigits: Number(process.env.ADMIN_OTP_DIGITS) || 6,
+    otpExpiresMinutes: Number(process.env.ADMIN_OTP_EXPIRES_MINUTES) || 10,
+    otpResendCooldownSeconds: Number(process.env.ADMIN_OTP_RESEND_COOLDOWN_SECONDS) || 60,
+    otpMaxAttempts: Number(process.env.ADMIN_OTP_MAX_ATTEMPTS) || 5,
+    sessionTtlHours: Number(process.env.ADMIN_SESSION_TTL_HOURS) || 24,
   },
 
   razorpay: {

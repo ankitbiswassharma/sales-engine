@@ -12,14 +12,18 @@
     a{color:inherit;text-decoration:none}
     /* LOGIN */
     #loginScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:2rem}
-    .login-box{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:36px;width:100%;max-width:380px;text-align:center}
+    .login-box{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:36px;width:100%;max-width:400px;text-align:center}
     .login-logo{font-family:var(--font-head);font-size:22px;font-weight:800;margin-bottom:6px}.login-logo span{color:var(--accent)}
     .login-sub{font-size:13px;color:var(--text3);margin-bottom:24px}
+    .login-note{font-size:12px;color:var(--text2);line-height:1.6;margin:-6px 0 16px}
     .login-input{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:11px 14px;font-family:var(--font-body);font-size:14px;color:var(--text);width:100%;outline:none;margin-bottom:12px;transition:border-color .2s}
     .login-input:focus{border-color:var(--accent)}
     .login-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:12px;font-family:var(--font-head);font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
     .login-btn:hover{opacity:.88}
-    .login-err{color:#FDA4AF;font-size:13px;margin-top:8px;display:none}
+    .login-btn.secondary{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--border2)}
+    .login-btn.secondary:hover{border-color:rgba(255,255,255,.2)}
+    .login-btn[disabled]{opacity:.66;cursor:not-allowed}
+    .login-err{color:#FDA4AF;font-size:13px;margin-top:10px;display:none}
     /* APP */
     #app{display:none}
     /* Top bar */
@@ -121,10 +125,15 @@
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">Musk<span>-IT</span></div>
-    <div class="login-sub">Sales Dashboard · Admin Access</div>
-    <input type="password" class="login-input" id="loginPwd" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">Access Dashboard →</button>
-    <div class="login-err" id="loginErr">Wrong password. Try again.</div>
+    <div class="login-sub">Sales Dashboard · Admin OTP Access</div>
+    <div class="login-note" id="loginHint">Enter the admin email and we’ll send a one-time code to the inbox.</div>
+    <input type="email" class="login-input" id="loginEmail" value="ankitbiswassharma@muskit.in" placeholder="Enter admin email" autocomplete="username" onkeydown="if(event.key==='Enter')handleEmailEnter()">
+    <div id="otpStep" style="display:none">
+      <input type="text" class="login-input" id="loginOtp" placeholder="Enter 6-digit OTP" inputmode="numeric" autocomplete="one-time-code" maxlength="6" oninput="sanitizeOtpInput(this)" onkeydown="if(event.key==='Enter')verifyOtp()">
+    </div>
+    <button class="login-btn" id="loginPrimaryBtn" onclick="submitLogin()">Send OTP →</button>
+    <button class="login-btn secondary" id="loginSecondaryBtn" style="display:none;margin-top:10px" onclick="requestOtp(true)">Send Fresh OTP</button>
+    <div class="login-err" id="loginErr"></div>
   </div>
 </div>
 
@@ -220,50 +229,245 @@
 </div>
 
 <script>
+const DEFAULT_ADMIN_EMAIL = 'ankitbiswassharma@muskit.in';
 let adminToken = localStorage.getItem('muskit_admin_token');
+let pendingChallengeId = sessionStorage.getItem('muskit_admin_challenge_id') || '';
+let pendingAdminEmail = sessionStorage.getItem('muskit_admin_email') || DEFAULT_ADMIN_EMAIL;
+let otpDigits = 6;
+let clockTimer = null;
 let allLeads = [];
 let currentFilter = '';
 let currentSearch = '';
 
-function doLogin() {
-  const pwd = document.getElementById('loginPwd').value;
-  fetch('/api/admin/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password: pwd }),
-  }).then(r => r.json()).then(data => {
-    if (data.token) {
-      adminToken = data.token;
-      localStorage.setItem('muskit_admin_token', adminToken);
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      loadAll();
-      startClock();
-    } else {
-      document.getElementById('loginErr').style.display = 'block';
-    }
-  }).catch(() => { document.getElementById('loginErr').style.display = 'block'; });
+function normalizeEmail(value = '') {
+  return value.trim().toLowerCase();
 }
 
-function doLogout() {
+function isOtpStep() {
+  return document.getElementById('otpStep').style.display !== 'none';
+}
+
+function setOtpDigits(digits = 6) {
+  otpDigits = Number(digits) || 6;
+  const otpInput = document.getElementById('loginOtp');
+  otpInput.maxLength = otpDigits;
+  otpInput.placeholder = `Enter ${otpDigits}-digit OTP`;
+}
+
+function sanitizeOtpInput(input) {
+  input.value = input.value.replace(/\D/g, '').slice(0, otpDigits);
+}
+
+function setLoginHint(message) {
+  document.getElementById('loginHint').textContent = message;
+}
+
+function setLoginError(message = '') {
+  const el = document.getElementById('loginErr');
+  el.textContent = message;
+  el.style.display = message ? 'block' : 'none';
+}
+
+function setButtonState(id, loading, readyText, loadingText) {
+  const button = document.getElementById(id);
+  button.disabled = loading;
+  button.textContent = loading ? loadingText : readyText;
+}
+
+function showOtpStep() {
+  document.getElementById('otpStep').style.display = 'block';
+  document.getElementById('loginSecondaryBtn').style.display = 'block';
+  setButtonState('loginPrimaryBtn', false, 'Verify OTP →', 'Verifying...');
+}
+
+function clearPendingOtpState() {
+  pendingChallengeId = '';
+  sessionStorage.removeItem('muskit_admin_challenge_id');
+  sessionStorage.removeItem('muskit_admin_email');
+  document.getElementById('loginOtp').value = '';
+}
+
+function resetLoginFlow(message = 'Enter the admin email and we’ll send a one-time code to the inbox.') {
+  clearPendingOtpState();
+  document.getElementById('otpStep').style.display = 'none';
+  document.getElementById('loginSecondaryBtn').style.display = 'none';
+  setButtonState('loginPrimaryBtn', false, 'Send OTP →', 'Sending OTP...');
+  setLoginHint(message);
+  setLoginError('');
+}
+
+function restorePendingOtpState() {
+  document.getElementById('loginEmail').value = pendingAdminEmail || DEFAULT_ADMIN_EMAIL;
+  setOtpDigits(otpDigits);
+  if (!pendingChallengeId) return;
+  showOtpStep();
+  setLoginHint(`Enter the latest OTP sent to ${pendingAdminEmail}.`);
+}
+
+async function parseJsonResponse(response) {
+  const data = await response.json().catch(() => ({}));
+  return { ok: response.ok, status: response.status, data };
+}
+
+function showDashboard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  setLoginError('');
+  loadAll();
+  startClock();
+}
+
+function clearAdminSession(message = 'Your admin session expired. Request a fresh OTP.') {
+  adminToken = '';
   localStorage.removeItem('muskit_admin_token');
-  location.reload();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  if (!document.getElementById('loginEmail').value.trim()) {
+    document.getElementById('loginEmail').value = pendingAdminEmail || DEFAULT_ADMIN_EMAIL;
+  }
+  resetLoginFlow(message);
 }
 
-function api(path, opts = {}) {
-  return fetch(path, {
+async function requestOtp(isResend = false) {
+  const email = normalizeEmail(document.getElementById('loginEmail').value);
+  if (!email) {
+    setLoginError('Enter the admin email first.');
+    return;
+  }
+
+  setLoginError('');
+  setButtonState('loginPrimaryBtn', true, isOtpStep() ? 'Verify OTP →' : 'Send OTP →', 'Sending OTP...');
+  if (isResend) setButtonState('loginSecondaryBtn', true, 'Send Fresh OTP', 'Sending...');
+
+  try {
+    const response = await fetch('/api/admin/login/request-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const { ok, data } = await parseJsonResponse(response);
+    if (!ok) throw new Error(data.error || 'Could not send OTP.');
+
+    pendingChallengeId = data.challenge_id;
+    pendingAdminEmail = email;
+    sessionStorage.setItem('muskit_admin_challenge_id', pendingChallengeId);
+    sessionStorage.setItem('muskit_admin_email', pendingAdminEmail);
+    setOtpDigits(data.otp_digits);
+    showOtpStep();
+
+    const expiresMinutes = Math.max(Math.round((data.expires_in_seconds || 0) / 60), 1);
+    setLoginHint(`OTP sent to ${data.masked_email || email}. It expires in ${expiresMinutes} minute${expiresMinutes === 1 ? '' : 's'}.`);
+    document.getElementById('loginOtp').focus();
+  } catch (err) {
+    setLoginError(err.message || 'Could not send OTP.');
+  } finally {
+    setButtonState('loginPrimaryBtn', false, isOtpStep() ? 'Verify OTP →' : 'Send OTP →', 'Sending OTP...');
+    if (isResend) setButtonState('loginSecondaryBtn', false, 'Send Fresh OTP', 'Sending...');
+  }
+}
+
+async function verifyOtp() {
+  const email = normalizeEmail(document.getElementById('loginEmail').value);
+  const otpInput = document.getElementById('loginOtp');
+  sanitizeOtpInput(otpInput);
+
+  if (!pendingChallengeId) {
+    setLoginError('Request an OTP first.');
+    return;
+  }
+  if (otpInput.value.length !== otpDigits) {
+    setLoginError(`Enter the ${otpDigits}-digit OTP.`);
+    otpInput.focus();
+    return;
+  }
+
+  setLoginError('');
+  setButtonState('loginPrimaryBtn', true, 'Verify OTP →', 'Verifying...');
+
+  try {
+    const response = await fetch('/api/admin/login/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        otp: otpInput.value,
+        challenge_id: pendingChallengeId,
+      }),
+    });
+    const { ok, data } = await parseJsonResponse(response);
+    if (!ok) throw new Error(data.error || 'OTP verification failed.');
+
+    adminToken = data.token;
+    localStorage.setItem('muskit_admin_token', adminToken);
+    clearPendingOtpState();
+    showDashboard();
+  } catch (err) {
+    setLoginError(err.message || 'OTP verification failed.');
+    if (/request a new/i.test(err.message || '') || /expired/i.test(err.message || '')) {
+      resetLoginFlow('Request a fresh OTP to continue.');
+    }
+  } finally {
+    setButtonState('loginPrimaryBtn', false, isOtpStep() ? 'Verify OTP →' : 'Send OTP →', 'Verifying...');
+  }
+}
+
+function submitLogin() {
+  if (isOtpStep()) return verifyOtp();
+  return requestOtp();
+}
+
+function handleEmailEnter() {
+  if (isOtpStep()) {
+    document.getElementById('loginOtp').focus();
+    return;
+  }
+  requestOtp();
+}
+
+async function doLogout() {
+  const token = adminToken;
+  clearPendingOtpState();
+  clearAdminSession('Logged out. Request a new OTP to sign in again.');
+  if (!token) return;
+
+  try {
+    await fetch('/api/admin/logout', {
+      method: 'POST',
+      headers: { 'x-admin-token': token },
+    });
+  } catch (err) {
+    console.error('Logout request failed:', err);
+  }
+}
+
+async function api(path, opts = {}) {
+  const headers = { ...(opts.headers || {}) };
+  if (adminToken) headers['x-admin-token'] = adminToken;
+  if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+
+  const response = await fetch(path, {
     ...opts,
-    headers: { ...opts.headers, 'x-admin-token': adminToken, 'Content-Type': 'application/json' },
-  }).then(r => r.json());
+    headers,
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (response.status === 401) {
+    clearAdminSession('Your admin session expired. Request a fresh OTP.');
+    throw new Error(data.error || 'Unauthorized');
+  }
+  if (!response.ok) {
+    throw new Error(data.error || 'Request failed');
+  }
+  return data;
 }
 
 function loadAll() {
-  loadStats();
-  loadLeads();
+  loadStats().catch(err => console.error('Could not load stats:', err));
+  loadLeads().catch(err => console.error('Could not load leads:', err));
 }
 
 function loadStats() {
-  api('/api/admin/stats').then(s => {
+  return api('/api/admin/stats').then(s => {
     document.getElementById('stTotal').textContent = s.total;
     document.getElementById('stNew').textContent   = s.new;
     document.getElementById('stDemo').textContent  = s.demo_booked;
@@ -274,7 +478,7 @@ function loadStats() {
 }
 
 function loadLeads() {
-  api('/api/admin/leads').then(leads => {
+  return api('/api/admin/leads').then(leads => {
     allLeads = leads;
     renderLeads();
   });
@@ -339,7 +543,7 @@ function openPanel(id) {
     document.getElementById('dpTitle').textContent = lead.name;
     document.getElementById('dpBody').innerHTML = buildDetailHTML(lead);
     document.getElementById('detailPanel').classList.add('open');
-  });
+  }).catch(err => console.error('Could not load lead details:', err));
 }
 
 function closePanel() {
@@ -408,7 +612,7 @@ function updateStatus(leadId, status) {
   api(`/api/admin/leads/${leadId}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
-  }).then(() => { loadLeads(); loadStats(); });
+  }).then(() => { loadLeads(); loadStats(); }).catch(err => console.error('Could not update lead status:', err));
 }
 
 function saveNotes(leadId) {
@@ -420,7 +624,7 @@ function saveNotes(leadId) {
     const el = document.getElementById('dpNotes');
     el.style.borderColor = 'var(--teal)';
     setTimeout(() => el.style.borderColor = '', 1500);
-  });
+  }).catch(err => console.error('Could not save notes:', err));
 }
 
 function showPage(name) {
@@ -457,7 +661,7 @@ function loadBookings() {
           </tr>`;
         }).join('')}</tbody>
       </table>`;
-  });
+  }).catch(err => console.error('Could not load bookings:', err));
 }
 
 function loadPayments() {
@@ -478,7 +682,7 @@ function loadPayments() {
           <td style="font-size:12px;color:var(--text3)">${p.created_at?new Date(p.created_at).toLocaleDateString('en-IN'):'—'}</td>
         </tr>`).join('')}</tbody>
       </table>`;
-  });
+  }).catch(err => console.error('Could not load payments:', err));
 }
 
 function startClock() {
@@ -486,15 +690,17 @@ function startClock() {
   const update = () => {
     el.textContent = new Date().toLocaleString('en-IN', { timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' }) + ' IST';
   };
-  update(); setInterval(update, 60000);
+  update();
+  clearInterval(clockTimer);
+  clockTimer = setInterval(update, 60000);
 }
 
-// Auto-login if token exists
+restorePendingOtpState();
+
 if (adminToken) {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  loadAll();
-  startClock();
+  showDashboard();
+} else {
+  document.getElementById('loginEmail').focus();
 }
 
 // Keyboard shortcuts

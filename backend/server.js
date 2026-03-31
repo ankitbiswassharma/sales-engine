@@ -31,19 +31,78 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, standardHeaders: true });
 app.use('/api/', limiter);
 
+const adminOtpRequestLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 6,
+  standardHeaders: true,
+  message: { error: 'Too many OTP requests. Please wait 15 minutes and try again.' },
+});
+
+const adminOtpVerifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  message: { error: 'Too many OTP verification attempts. Please wait 15 minutes and try again.' },
+});
+
 // Razorpay client (lazy — only if keys set)
 function getRazorpay() {
   if (!cfg.razorpay.keyId || cfg.razorpay.keyId.includes('placeholder')) return null;
   return new Razorpay({ key_id: cfg.razorpay.keyId, key_secret: cfg.razorpay.keySecret });
 }
 
+function normalizeEmail(email = '') {
+  return String(email).trim().toLowerCase();
+}
+
+function maskEmail(email) {
+  const [local = '', domain = ''] = normalizeEmail(email).split('@');
+  if (!local || !domain) return email;
+  const visible = local.slice(0, Math.min(2, local.length));
+  const maskedLocal = visible + '*'.repeat(Math.max(local.length - visible.length, 1));
+  return `${maskedLocal}@${domain}`;
+}
+
+function hashAdminValue(scope, value) {
+  return crypto.createHmac('sha256', cfg.admin.sessionSecret).update(`${scope}:${value}`).digest('hex');
+}
+
+function hashAdminOtp(challengeId, otp) {
+  return hashAdminValue('otp', `${challengeId}:${otp}`);
+}
+
+function hashAdminSessionToken(token) {
+  return hashAdminValue('session', token);
+}
+
+function safeHashCompare(expected, actual) {
+  const expectedBuf = Buffer.from(expected || '', 'hex');
+  const actualBuf = Buffer.from(actual || '', 'hex');
+  if (!expectedBuf.length || expectedBuf.length !== actualBuf.length) return false;
+  return crypto.timingSafeEqual(expectedBuf, actualBuf);
+}
+
+function getAdminOtpDigits() {
+  return Math.min(Math.max(Number(cfg.admin.otpDigits) || 6, 4), 8);
+}
+
+function generateAdminOtp() {
+  const digits = getAdminOtpDigits();
+  const upperBound = 10 ** digits;
+  return crypto.randomInt(0, upperBound).toString().padStart(digits, '0');
+}
+
 // ── Admin auth middleware ─────────────────────────────────────────────────────
 function adminAuth(req, res, next) {
+  db.cleanupAdminAuth();
   const token = req.headers['x-admin-token'] || req.query.token;
-  const expected = crypto.createHash('sha256').update(cfg.admin.password).digest('hex');
-  if (token !== expected) {
+  if (!token) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+  const tokenHash = hashAdminSessionToken(String(token));
+  const session = db.getAdminSession(tokenHash);
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  req.admin = { email: session.email, tokenHash };
   next();
 }
 
@@ -408,14 +467,125 @@ app.post('/api/pay/webhook', (req, res) => {
 // ADMIN API — all routes protected by adminAuth
 // ═══════════════════════════════════════════════════════
 
-// Auth check
-app.post('/api/admin/login', (req, res) => {
-  const { password } = req.body;
-  if (password !== cfg.admin.password) {
-    return res.status(401).json({ error: 'Wrong password' });
+app.post('/api/admin/login/request-otp', adminOtpRequestLimiter, async (req, res) => {
+  const email = normalizeEmail(req.body?.email);
+  if (!email) {
+    return res.status(400).json({ error: 'Admin email is required' });
   }
-  const token = crypto.createHash('sha256').update(cfg.admin.password).digest('hex');
-  res.json({ success: true, token });
+  if (email !== cfg.admin.email) {
+    return res.status(401).json({ error: 'Unauthorized admin email' });
+  }
+
+  db.cleanupAdminAuth();
+
+  const recentRequest = db.getRecentAdminOtpRequest(
+    email,
+    new Date(Date.now() - cfg.admin.otpResendCooldownSeconds * 1000)
+  );
+
+  if (recentRequest) {
+    return res.status(429).json({
+      error: `Please wait ${cfg.admin.otpResendCooldownSeconds} seconds before requesting another OTP.`,
+    });
+  }
+
+  const challengeId = crypto.randomUUID();
+  const otp = generateAdminOtp();
+  const expiresAt = new Date(Date.now() + cfg.admin.otpExpiresMinutes * 60 * 1000);
+
+  db.createAdminOtpRequest({
+    id: challengeId,
+    email,
+    otp_hash: hashAdminOtp(challengeId, otp),
+    expires_at: expiresAt,
+    requested_ip: req.ip,
+    user_agent: req.headers['user-agent'],
+  });
+
+  const delivered = await mailer.send(
+    cfg.admin.email,
+    mailer.templates.adminLoginOtp({
+      otp,
+      ip: req.ip,
+      expires_minutes: cfg.admin.otpExpiresMinutes,
+    })
+  );
+
+  if (!delivered) {
+    db.deleteAdminOtpRequest(challengeId);
+    return res.status(500).json({ error: 'Could not send OTP email. Check SMTP settings and try again.' });
+  }
+
+  res.json({
+    success: true,
+    challenge_id: challengeId,
+    masked_email: maskEmail(cfg.admin.email),
+    expires_in_seconds: cfg.admin.otpExpiresMinutes * 60,
+    otp_digits: getAdminOtpDigits(),
+  });
+});
+
+app.post('/api/admin/login/verify-otp', adminOtpVerifyLimiter, (req, res) => {
+  const email = normalizeEmail(req.body?.email);
+  const challengeId = String(req.body?.challenge_id || '').trim();
+  const otp = String(req.body?.otp || '').replace(/\D/g, '');
+
+  if (!email || !challengeId || !otp) {
+    return res.status(400).json({ error: 'Email, OTP and challenge are required' });
+  }
+  if (email !== cfg.admin.email) {
+    return res.status(401).json({ error: 'Unauthorized admin email' });
+  }
+  if (otp.length !== getAdminOtpDigits()) {
+    return res.status(400).json({ error: `OTP must be ${getAdminOtpDigits()} digits` });
+  }
+
+  db.cleanupAdminAuth();
+
+  const challenge = db.getAdminOtpRequest(challengeId);
+  if (!challenge || challenge.email !== email || challenge.used_at) {
+    return res.status(401).json({ error: 'OTP expired or invalid. Request a new one.' });
+  }
+
+  if (challenge.attempt_count >= cfg.admin.otpMaxAttempts) {
+    db.deleteAdminOtpRequest(challengeId);
+    return res.status(429).json({ error: 'Too many incorrect OTP attempts. Request a new code.' });
+  }
+
+  const providedHash = hashAdminOtp(challengeId, otp);
+  if (!safeHashCompare(challenge.otp_hash, providedHash)) {
+    db.incrementAdminOtpAttempt(challengeId);
+    const attemptsLeft = Math.max(cfg.admin.otpMaxAttempts - (challenge.attempt_count + 1), 0);
+    if (!attemptsLeft) db.deleteAdminOtpRequest(challengeId);
+    return res.status(401).json({
+      error: attemptsLeft
+        ? `Incorrect OTP. ${attemptsLeft} attempt${attemptsLeft === 1 ? '' : 's'} left.`
+        : 'Too many incorrect OTP attempts. Request a new code.',
+    });
+  }
+
+  db.consumeAdminOtpRequest(challengeId);
+
+  const sessionToken = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + cfg.admin.sessionTtlHours * 60 * 60 * 1000);
+
+  db.createAdminSession({
+    token_hash: hashAdminSessionToken(sessionToken),
+    email,
+    expires_at: expiresAt,
+  });
+
+  res.json({
+    success: true,
+    token: sessionToken,
+    expires_at: expiresAt.toISOString(),
+    admin_email: email,
+  });
+});
+
+app.post('/api/admin/logout', adminAuth, (req, res) => {
+  db.revokeAdminSession(req.admin.tokenHash);
+  res.json({ success: true });
 });
 
 app.get('/api/admin/stats', adminAuth, (req, res) => {

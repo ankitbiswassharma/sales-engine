@@ -36,10 +36,10 @@ nano .env
 ```
 
 Fill in:
-- `ADMIN_PASSWORD` — choose a strong password for the CRM dashboard
+- `ADMIN_EMAIL` — admin inbox that should receive dashboard OTPs
 - `ADMIN_SESSION_SECRET` — any long random string (64+ chars)
 - `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` — from Razorpay dashboard
-- `EMAIL_USER` / `EMAIL_PASS` — Gmail App Password (not your main password)
+- `EMAIL_USER` / `EMAIL_PASS` — SMTP credentials used for lead emails and admin OTP delivery
 - `GOOGLE_SERVICE_ACCOUNT_EMAIL` / `GOOGLE_PRIVATE_KEY` / `GOOGLE_SHEET_ID` — optional
 
 ---
@@ -79,7 +79,7 @@ Visit:
 - `https://sales.muskit.in/book.html` — demo booking
 - `https://sales.muskit.in/quote.html` — quote builder
 - `https://sales.muskit.in/pay.html` — payment page
-- `https://sales.muskit.in/admin/dashboard.html` — CRM (use your ADMIN_PASSWORD)
+- `https://sales.muskit.in/admin/dashboard.html` — CRM (enter `ADMIN_EMAIL`, then use the email OTP)
 
 ---
 
@@ -148,7 +148,7 @@ pm2 stop muskit-sales             # Stop
 │   ├── pay.html          ← Payment page
 │   ├── thankyou.html     ← Confirmation page
 │   └── admin/
-│       └── dashboard.html ← CRM (password protected)
+│       └── dashboard.html ← CRM (email OTP protected)
 ├── data/
 │   └── leads.db          ← SQLite database (auto-created)
 └── setup.sh

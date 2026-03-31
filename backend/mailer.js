@@ -51,6 +51,26 @@ function wrap(title, body) {
 
 const templates = {
 
+  // To admin — OTP login code
+  adminLoginOtp(data) {
+    const body = `
+      <div class="badge">Admin Login</div>
+      <h2 style="margin-top:12px">Your one-time login code</h2>
+      <p>Use the OTP below to access the Musk-IT sales dashboard. This code expires in ${data.expires_minutes} minutes.</p>
+      <div class="card" style="text-align:center;padding:24px 22px">
+        <div style="font-size:11px;color:#505D78;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">OTP</div>
+        <div style="font-family:'Syne',Arial,sans-serif;font-size:34px;font-weight:800;letter-spacing:8px;color:#F0F4FF">${data.otp}</div>
+      </div>
+      <div class="card">
+        <div class="row"><span class="lbl">Admin email</span><span class="val">${cfg.admin.email}</span></div>
+        <div class="row"><span class="lbl">Requested from</span><span class="val">${data.ip || 'Unknown IP'}</span></div>
+      </div>
+      <p style="font-size:12px;color:#505D78">If you did not request this login, you can ignore this email safely.</p>
+      <a href="${cfg.baseUrl}/admin/dashboard.html" class="btn teal">Open Dashboard →</a>
+    `;
+    return { subject: '🔐 Your Musk-IT admin login OTP', html: wrap('Admin Login OTP', body) };
+  },
+
   // To Ankit — new lead alert
   newLeadAlert(lead) {
     const body = `
